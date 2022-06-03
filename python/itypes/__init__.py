@@ -52,8 +52,10 @@ from .struct import Struct
 from .struct import NumpyStruct
 from .struct import TorchStruct
 
-from .sequence import Sequence
-from .sequence import singleton_sequence
+from .dataset import Dataset
+from .dataset import register_visualization
+
+from .registry import Registry
 
 from .paths import itypes_root
 from .paths import data_root

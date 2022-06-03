@@ -13,9 +13,8 @@ with seq.new_row() as row:
 with seq.new_col as col:
     ...
 
-seq.add_cell(cell, col, row, type, id, properties, source_seq, source_id,  title, source_method)
-seq.remove_cell(id)
-seq.remove_cell(col_row)
+seq.add_cell(col, row, type, id, properties, source_seq, source_id,  title, source_method, cell)
+seq.remove_cell(id, col, row, cell)
 
 seq.ids()
 seq.cell(id, row, col)
