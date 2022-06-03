@@ -2,7 +2,7 @@
 
 
 class _Item:
-    def __init__(self, ds, path, title):
+    def __init__(self, ds, path, title=None):
         self._ds = ds
         self._reg = ds._reg
         self._path = path
@@ -11,10 +11,17 @@ class _Item:
         if self._path not in self._reg:
             exists = False
 
-        self._reg[self._path + "title"] = title
+        if title is not None:
+            self._reg[self._path + "title"] = title
 
-        if not exists and self._ds._auto_write:
-            self._ds.write()
+    def name(self):
+        return self._path[-1]
+
+    def title(self):
+        path = self._path + "title"
+        if path in self._reg:
+            return self._reg[path]
+        return None
 
     def __enter__(self):
         return self

@@ -9,7 +9,7 @@ class _Value:
         self._reg = ds._reg
         self._path = path
 
-    def set_ref(self, file, rel_to="cwd", check_if_exists=True):
+    def set_ref(self, file, rel_to="cwd", check_if_exists=False):
         file = File(file)
 
         if rel_to == "cwd":
@@ -28,3 +28,15 @@ class _Value:
             file = file.rel_to(self._ds.base_path())
 
         self._reg[self._path + "path"] = str(file)
+
+        if self._ds._auto_write:
+            self._ds.write()
+
+    def file(self):
+        path = self._ds.base_path()
+        file = File(self._reg[self._path + "path"])
+        path = path.cd(file.path())
+        return path.file(file.name())
+
+    def data(self, dims="hcw", device="numpy", dtype=None):
+        return self.file().read(dims=dims, dtype=dtype, device=device)

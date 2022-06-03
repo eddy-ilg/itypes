@@ -1,0 +1,74 @@
+{
+    "visualization": {
+        "(0, 0)": {
+            "type": "image",
+            "variable": "image0"
+        },
+        "(1, 0)": {
+            "type": "image",
+            "variable": "image1"
+        },
+        "(2, 0)": {
+            "type": "flow",
+            "variable": "flow"
+        },
+        "(2, 1)": {
+            "type": "image",
+            "variable": "occ"
+        }
+    },
+    "variables": {
+        "image0": {
+            "type": "image",
+            "values": {
+                "000": {
+                    "00000000": {
+                        "path": "../../data/scene1/0000-image0.png"
+                    }
+                }
+            }
+        },
+        "image1": {
+            "type": "image",
+            "values": {
+                "000": {
+                    "00000000": {
+                        "path": "../../data/scene1/0000-image1.png"
+                    }
+                }
+            }
+        },
+        "flow": {
+            "type": "flow",
+            "values": {
+                "000": {
+                    "00000000": {
+                        "path": "../../data/scene1/0000-flow.flo"
+                    }
+                }
+            }
+        },
+        "occ": {
+            "type": "image",
+            "values": {
+                "000": {
+                    "00000000": {
+                        "path": "../../data/scene1/0000-occ.png"
+                    }
+                }
+            }
+        }
+    },
+    "sequence": {
+        "groups": {
+            "000": {
+                "title": "000",
+                "items": {
+                    "00000000": {
+                        "title": "00000000"
+                    }
+                }
+            }
+        }
+    }
+}

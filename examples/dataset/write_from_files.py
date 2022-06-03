@@ -5,10 +5,10 @@
 # existing files.
 #
 
-from itypes import Dataset, psep
+from itypes import Dataset
 
 # Create sequence
-ds = Dataset(file='out_inspection/data.json')
+ds = Dataset(file='out_write_from_files/data.json', auto_write=True)
 
 # First row: show images
 with ds.viz.new_row() as row:
@@ -16,21 +16,11 @@ with ds.viz.new_row() as row:
     row.add_cell("image", variable="image1")
     row.add_cell("flow",  variable="flow")
 
-psep('ds:')
-print(ds.to_dict())
-psep()
-print()
-
 # Second row: show flow and occlusions
 with ds.viz.new_row() as row:
     row.skip_cell()
     row.skip_cell()
     row.add_cell("image", variable="occ")
-
-psep('ds:')
-print(ds.to_dict())
-psep()
-print()
 
 # Create a scene with frames
 with ds.seq.group('Scene-001') as group:
@@ -52,16 +42,6 @@ with ds.seq.group('Scene-002') as group:
         item["flow"].set_ref('../data/scene2/0000-flow.flo', rel_to="cwd")
         item["occ"].set_ref('../data/scene2/0000-occ.png', rel_to="cwd")
 
-psep('ds:')
-print(ds.to_dict())
-psep()
 print()
-
-psep("json:")
-print(open('out_inspection/data.json', 'r').read(), end='')
-psep()
-print()
-
-print()
-print("To view run: \"iviz out_inspection/data.json\"")
+print("To view run: \"iviz out_write_from_files/data.json\"")
 print()
