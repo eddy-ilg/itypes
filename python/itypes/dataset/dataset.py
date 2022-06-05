@@ -3,21 +3,23 @@
 from ._sequence import _Sequence
 from ._variables import _Variables
 from ._visualizations import _Visualizations
-from ..registry import Registry, RegistryPath
+from ..json_registry import JsonRegistry, RegistryPath
 from ..filesystem import File
 
 
 class _Iterator:
     def __init__(self, ds):
         self._ds = ds
-        self._indices = self._ds._update_linear_indices()
+        self._indices = self._ds.seq.full_item_list()
         self._index = 0
 
     def __next__(self):
         if self._index >= len(self._indices):
             raise StopIteration
 
-        group_name, item_name = self._indices[self._index]
+        item = self._indices[self._index]
+        item_name = item["item_name"]
+        group_name = item["group_name"]
         value = self._ds.seq[group_name][item_name]
         self._index += 1
         return value
@@ -25,24 +27,13 @@ class _Iterator:
 
 class Dataset:
     def __init__(self, file=None, abs_paths=False, auto_write=False):
-        self._reg = Registry(file)
+        self._reg = JsonRegistry(file)
         self._abs_paths = abs_paths
         self._auto_write = auto_write
         self.viz = _Visualizations(self)
         self.var = _Variables(self)
         self.seq = _Sequence(self)
         self._file = File(file) if file is not None else None
-        self._linear_indices = []
-        self._dirty = True
-
-    def _update_linear_indices(self):
-        if self._dirty:
-            self._linear_indices = []
-            for group in self.seq:
-                for item in group:
-                    self._linear_indices.append((group.name(), item.name()))
-            self._dirty = False
-        return self._linear_indices
 
     def base_path(self):
         if self._file is None:
@@ -68,7 +59,14 @@ class Dataset:
         return self
 
     def __len__(self):
-        return len(self._update_linear_indices())
+        return len(self.seq.full_item_list())
+
+    def __getitem__(self, index):
+        item = self.seq.full_item_list()[index]
+        item_name = item["item_name"]
+        group_name = item["group_name"]
+        return self.seq[group_name][item_name]
 
     def __iter__(self):
         return _Iterator(self)
+

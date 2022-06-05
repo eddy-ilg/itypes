@@ -5,11 +5,18 @@
 # existing files.
 #
 
-import sys
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--groups", type=int, default=1000, help="Number of groups to write.")
+parser.add_argument("--items", type=int, default=1000, help="Number of items per group to write.")
+args = parser.parse_args()
+
 from itypes import Dataset
+from iutils import profiler
 
 # Create sequence
-ds = Dataset(file='perf_test_write/data.json')
+ds = Dataset(file='out_perf_test_write/data.json')
 
 # First row: show images
 with ds.viz.new_row() as row:
@@ -23,18 +30,24 @@ with ds.viz.new_row() as row:
     row.skip_cell()
     row.add_cell("image", variable="occ")
 
-print('writing 1,000,000 entries')
+print(f'writing {args.groups*args.items} entries (can take multiple hours)')
 
-for i in range(0, 1000):
+for i in range(0, args.groups):
     with ds.seq.group('%03d' % i) as group:
-        for j in range(0, 1000):
-            with group.item() as item:
-                item["image0"].set_ref('../data/scene1/0000-image0.png', rel_to="cwd")
-                item["image1"].set_ref('../data/scene1/0000-image1.png', rel_to="cwd")
-                item["flow"].set_ref('../data/scene1/0000-flow.flo', rel_to="cwd")
-                item["occ"].set_ref('../data/scene1/0000-occ.png', rel_to="cwd")
-    print('.', end='')
-    sys.stdout.flush()
+        for j in range(0, args.items):
+            with profiler.scope("add item"):
+                profiler.start("with group.item()")
+                with group.item() as item:
+                    profiler.stop("with group.item()")
+                    with profiler.scope("assignments"):
+                        item["image0"].set_ref('../data/scene1/0000-image0.png', rel_to="cwd")
+                        item["image1"].set_ref('../data/scene1/0000-image1.png', rel_to="cwd")
+                        item["flow"].set_ref('../data/scene1/0000-flow.flo', rel_to="cwd")
+                        item["occ"].set_ref('../data/scene1/0000-occ.png', rel_to="cwd")
+    profiler.print_summary()
 
 ds.write()
 
+profiler.print_final_summary()
+
+print('done.')

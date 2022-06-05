@@ -23,9 +23,9 @@ from itypes import Dataset
 
 ds = Dataset("out_write_from_files/data.json").read()
 
-print(f'datatset length: {len(ds)}')
-
+print(f'Datatset length: {len(ds)}')
 print()
+
 for item in ds:
     image0 = item['image0'].data(dims="hwc", device="numpy", dtype=itypes.float32)
     image1 = item['image1'].data(dims="hwc", device="numpy", dtype=itypes.float32)

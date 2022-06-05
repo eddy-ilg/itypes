@@ -313,7 +313,7 @@ class Sequence:
                 index = DataIndex(
                     id=id,
                     scene=self._scene.name(),
-                    frame=self._name,
+                frame=self._name,
                     linear_index=self._linear_index
                 )
                 self[id] = DataItem(

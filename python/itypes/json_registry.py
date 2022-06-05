@@ -50,44 +50,20 @@ class RegistryPath:
     def __len__(self):
         return len(self._path)
 
-# def _container_keys(root, d, max_depth=MAX_INT):
-#     keys = []
-#     if max_depth == 0:
-#         return keys
-#
-#     for key , value in d.items():
-#         sub_key = root.append(key)
-#         if isinstance(value, dict):
-#             keys += _keys(sub_key, value, max_depth - 1)
-#         else:
-#             keys.append(sub_key)
-#
-#     return keys
-#
-# def _value_keys(root, d, max_depth=MAX_INT):
-#     keys = []
-#     if max_depth == 0:
-#         return keys
-#
-#     for key , value in d.items():
-#         sub_key = root.append(key)
-#         if isinstance(value, dict):
-#             keys += _keys(sub_key, value, max_depth - 1)
-#         else:
-#             keys.append(sub_key)
-#
-#     return keys
-
-def _getitem(d, key):
+def _getitem(d, key, full_key):
     if len(key) == 0:
         return d
 
     if len(key) == 1:
+        if str(key) not in d:
+            raise KeyError(full_key)
         return d[str(key)]
 
     sub_key = key.sub_key()
     current_key = str(key[0])
-    return _getitem(d[current_key], sub_key)
+    if current_key not in d:
+        raise KeyError(full_key)
+    return _getitem(d[current_key], sub_key, full_key)
 
 def _contains(d, key):
     if len(key) == 0:
@@ -135,9 +111,10 @@ def _delitem(d, key):
     if len(d[current_key]) == 0:
         del d[current_key]
 
-class Registry(dict):
+class JsonRegistry(dict):
     def __init__(self, file=None):
         self._file = file
+        self._key_cache = {}
 
     def to_dict(self):
         return dict(deepcopy(self))
@@ -160,18 +137,24 @@ class Registry(dict):
         self._file = file
 
     def __getitem__(self, key):
+        try:
+            return self._key_cache[str(key)]
+        except:
+            pass
         if '/' not in str(key):
             return super().__getitem__(str(key))
         key = RegistryPath(key)
-        return _getitem(self, key)
+        return _getitem(self, key, key)
 
     def __setitem__(self, key, value):
+        self._key_cache[str(key)] = value
         if '/' not in str(key):
             return super().__setitem__(str(key), value)
         key = RegistryPath(key)
         return _setitem(self, key, value)
 
     def remove(self, key):
+        self._key_cache.pop(str(key), None)
         if '/' not in str(key):
             if not str(key) in self:
                 return

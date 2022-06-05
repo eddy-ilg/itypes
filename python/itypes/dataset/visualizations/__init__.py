@@ -2,5 +2,6 @@
 
 from .registry import register_visualization
 
-from ._flow import _FlowVisualization
-from ._image import _ImageVisualization
+from .flow import _FlowVisualization
+from .float import _FloatVisualization
+from .image import _ImageVisualization

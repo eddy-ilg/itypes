@@ -22,8 +22,8 @@ def format_dhms(seconds):
     else:
         return f'{m:02d}m:{s:02d}s'
 
-def make_psep(x=None, sep_char='-'):
-    w = 80
+def make_psep(x=None, sep_char='-', width=80):
+    w = width
     if x is None:
         return (sep_char * w)
     else:
@@ -49,8 +49,8 @@ def pprint(x, long=True, indent=4, limit_lines=None):
         pp = pprint.PrettyPrinter(indent=indent, compact=not long)
         return pp.pprint(x)
 
-def psep(x=None, sep_char="-"):
-    print(make_psep(x, sep_char))
+def psep(x=None, sep_char="-", width=80):
+    print(make_psep(x, sep_char, width))
 
 def lookahead(iterable):
     it = iter(iterable)

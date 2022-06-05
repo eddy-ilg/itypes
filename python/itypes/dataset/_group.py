@@ -19,13 +19,19 @@ class _Iterator:
 
 
 class _Group:
-    def __init__(self, ds, path, title=None):
+    def __init__(self, ds, path, label=None):
         self._ds = ds
         self._reg = ds._reg
         self._path = path
 
-        if title is not None:
-            self._reg[self._path + "title"] = title
+        exists = self._path in self._reg
+        if not exists:
+            group_name = self._path[-1]
+            self._ds.seq._append_group(group_name, label)
+
+        if label is not None:
+            self._reg[self._path + "label"] = label
+
         self._new_item_counter = 0
 
     def __enter__(self):
@@ -38,8 +44,8 @@ class _Group:
     def name(self):
         return self._path[-1]
 
-    def title(self):
-        path = self._path + "title"
+    def label(self):
+        path = self._path + "label"
         if path in self._reg:
             return self._reg[path]
         return None
@@ -53,13 +59,15 @@ class _Group:
         self._new_item_counter += 1
         return name
 
-    def item(self, name=None, title=None):
+    def item(self, name=None, label=None):
         if name is None:
             name = self._new_name()
-        if title is None:
-            title = name
+        if name is None and label is not None:
+            name = label
+        if label is None:
+            label = name
         path = self._path + "items" + name
-        return _Item(self._ds, path, title)
+        return _Item(self._ds, path, label)
 
     def __getitem__(self, name):
         path = self._path + "items" + name

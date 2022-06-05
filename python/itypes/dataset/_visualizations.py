@@ -1,8 +1,24 @@
 #!/usr/bin/env python3
 
-from ..registry import RegistryPath
-from .visualizations.registry import _instantiate_visualization
+from ..json_registry import RegistryPath
+from .visualizations.registry import _instantiate_visualization, _reinstantiate_visualization
+from ..type import is_list
 
+
+class _Iterator:
+    def __init__(self, viz):
+        self._viz = viz
+        self._indices = viz.indices()
+        self._index = 0
+
+    def __next__(self):
+        if self._index >= len(self._indices):
+            raise StopIteration
+
+        value = self._viz[self._indices[self._index]]
+        self._index += 1
+        return value
+    
 
 class _Visualizations:
     class _Row:
@@ -26,15 +42,15 @@ class _Visualizations:
             return self
 
         def add_cell(self, type, **kwargs):
-            idx = self._current_col, self._row_idx
+            kwargs['index'] = self._current_col, self._row_idx
             viz = _instantiate_visualization(
                 self._visualizations._ds,
-                self._visualizations._path + idx,
-                type
+                self._visualizations._path,
+                type,
+                **kwargs
             )
-            viz.init(**kwargs)
             self._current_col += 1
-            return self
+            return viz
 
     class _Column:
         def __init__(self, visualizations, col_idx):
@@ -57,20 +73,20 @@ class _Visualizations:
             return self
 
         def add_cell(self, type, variable, **kwargs):
-            idx = self._col_idx, self._current_row
+            kwargs['index'] = self._col_idx, self._current_row
             viz = _instantiate_visualization(
                 self._visualizations._ds,
-                self._visualizations._path + idx,
-                type
+                self._visualizations._path,
+                type,
+                **kwargs
             )
-            viz.init(**kwargs)
-            self._current_col += 1
-            return self
+            self._current_row += 1
+            return viz
 
     def __init__(self, ds):
         self._ds = ds
         self._reg = ds._reg
-        self._path = RegistryPath("visualization")
+        self._path = RegistryPath("visualizations")
         self._current_col = 0
         self._current_row = 0
 
@@ -84,27 +100,64 @@ class _Visualizations:
         self._current_col += 1
         return col
 
-    def __contains__(self, idx):
-        return self._path + idx in self._reg
+    def indices(self):
+        path = self._path
+        if path not in self._reg:
+            return []
+        indices = []
+        for value in list(self._reg[path].values()):
+            indices.append(value['index'])
+        return indices
 
-    def __getitem__(self, idx):
-        return self._reg[self._path + idx]
+    def _new_id(self, base_id):
+        path = self._path
+        if path not in self._reg:
+            return base_id
+        idx = 1
+        id = base_id
+        id_path = path + base_id
+        while id_path in self._reg:
+            id = "%s-%d" % (base_id, idx)
+            id_path = path + id
+            idx += 1
+        return id
 
-    def __delitem__(self, key):
-        self.remove(key)
+    def __contains__(self, id):
+        if is_list(id):
+            return id in self.indices()
+        else:
+            return self._path + id in self._reg
+
+    def __getitem__(self, id):
+        if is_list(id):
+            for key, value in self._reg[self._path].items():
+                if value['index'] == id:
+                    return _reinstantiate_visualization(
+                        self._ds,
+                        self._path + key,
+                     )
+            raise Exception(f"visualization \"{id} not found")
+        else:
+            return _reinstantiate_visualization(
+                self._ds,
+                self._path + id,
+            )
+
+    def __delitem__(self, id):
+        self.remove(id)
 
     def __setitem__(self, key, value):
+        # FIXME
         self.set(key, value)
 
-    # TODO get indices / iterate
+    def __iter__(self):
+        return _Iterator(self)
 
-    def remove(self, idx):
-        self._reg.remove(self._path + idx)
-
-    # def set(self, idx, visualization):
-    #     # if idx in self._data:
-    #     #     self.remove(idx)
-    #     # visualization._register(self._ds)
-    #     # self._data[idx] = visualization
-    #     return self
-
+    def remove(self, id):
+        if is_list(id):
+            for key, value in self._reg[self._path].items():
+                if value['index'] == id:
+                    self._reg.remove(self._path + key)
+            raise Exception(f"visualization \"{id} not found")
+        else:
+            self._reg.remove(self._path + id)
