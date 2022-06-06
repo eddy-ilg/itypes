@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 from ..json_registry import RegistryPath
-from ._variable import _Variable
 from .variables import _instantiate_variable
 
 

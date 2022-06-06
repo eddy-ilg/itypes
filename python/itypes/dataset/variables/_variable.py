@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from itypes import File
-from ._value import _Value
+from .._value import _Value
 
 
 class _Iterator:
