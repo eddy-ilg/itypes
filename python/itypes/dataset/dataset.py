@@ -26,14 +26,30 @@ class _Iterator:
 
 
 class Dataset:
-    def __init__(self, file=None, abs_paths=False, auto_write=False):
+    def __init__(self,
+                 file=None,
+                 abs_paths=False,
+                 auto_write=False,
+                 structured_output=True,
+                 single_item=False,
+                 linear_format="%08d-{var}"):
+
         self._reg = JsonRegistry(file)
         self._abs_paths = abs_paths
         self._auto_write = auto_write
+        self._structured_output = structured_output
+        self._linear_format = linear_format
+        self._single_item = single_item
         self.viz = _Visualizations(self)
         self.var = _Variables(self)
         self.seq = _Sequence(self)
         self._file = File(file) if file is not None else None
+
+        self._single_item = single_item
+        if single_item:
+            self._stuctured_output = False
+            self._linear_format = "{var}"
+            self._single_item_value = self.seq.group().item()
 
     def base_path(self):
         if self._file is None:

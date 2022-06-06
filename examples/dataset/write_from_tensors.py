@@ -1,19 +1,7 @@
 #!/usr/bin/env python3
 
 #
-# Configure logging
-#
-import logging
-import argparse
-
-parser = argparse.ArgumentParser()
-parser.add_argument("--debug", action="store_true", help="Show debugging output.")
-args = parser.parse_args()
-log_level = logging.DEBUG if args.debug else logging.INFO
-logging.basicConfig(level=log_level, format='[%(levelname)8s] %(name)-15s : %(message)s')
-
-#
-# The following example shows how to create a sequence from
+# The following example shows how to create a dataset from
 # torch single tensors that are already in memory.
 #
 
@@ -21,7 +9,7 @@ logging.basicConfig(level=log_level, format='[%(levelname)8s] %(name)-15s : %(me
 # Actual example
 #
 import itypes
-from itypes import File, Sequence
+from itypes import File, Dataset
 
 # Read data into memory
 device = "numpy"  # Note: this works with torch devices as well
@@ -50,36 +38,31 @@ data = {
     }
 }
 
-# Create sequence
-# NOTE: Since a filename is specified here, any new images will be written to disk immediately
-# to the path containing the data.json file
-seq = Sequence(filename='out_write_from_tensor/data.json')
+# Create dataset
+ds = Dataset(file='out_write_from_tensors/data.json', auto_write=True)
 
-# First row: show images
-with seq.grid.new_row() as row:
-    row.add_cell('image', 'image0')
-    row.add_cell('image', 'image1')
-    row.add_cell('flow',  'flow')
+# First row: show float and images
+with ds.viz.new_row() as row:
+    row.add_cell('image', var='image0')
+    row.add_cell('image', var='image1')
+    row.add_cell('flow',  var='flow')
 
-# Second row: show flow and occlusions
-with seq.grid.new_row() as row:
+# Second row: show occlusions
+with ds.viz.new_row() as row:
     row.skip_cell()
     row.skip_cell()
-    row.add_cell('image', 'occ')
+    row.add_cell('image', var='occ')
 
 # Write the data to the sequence
 for scene_name, scene_dict in data.items():
-    scene = seq.data.scene(scene_name)
+    group = ds.seq.group(scene_name)
     for frame_name, frame_dict in scene_dict.items():
-        frame = scene.sample(frame_name)
+        item = group.item(frame_name)
         for id, tensor in frame_dict.items():
-            frame.set_data(id, tensor, dims="bchw")
-
-seq.write()
-seq.write(filename='out_write_from_tensor/data.gridseq')
+            item[id].set_data(tensor, dims="bchw")
 
 print()
-print("To view run: \"iviz out_write_from_tensor/data.gridseq\"")
+print("To view run: \"iviz out_write_from_tensors/data.json\"")
 print()
 
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from itypes import File
 from ._value import _Value
 
 
@@ -44,6 +45,12 @@ class _Variable:
         path = self._path + "values" + group_name + item_name
         return _Value(self._ds, path)
 
+    def __contains__(self, index):
+        group_name, item_name = index
+
+        path = self._path + "values" + group_name + item_name
+        return path in self._reg
+
     def __iter__(self):
         return _Iterator(self)
 
@@ -67,3 +74,19 @@ class _Variable:
         if path not in self._reg:
             return None
         return self._reg[path]
+
+    def extension(self):
+        raise NotImplementedError
+
+    def read(self, file, **kwargs):
+        if file is None:
+            return None
+        file = File(file)
+        return file.read(**kwargs)
+
+    def write(self, file, data, **kwargs):
+        if file is None:
+            raise Exception(f"write() needs a file")
+        file = File(file)
+        file.write(data, **kwargs)
+        return self

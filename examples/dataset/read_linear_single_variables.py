@@ -2,7 +2,7 @@
 
 #
 # The following example shows how to read and linearly
-# iterate through a dataset, reqding single tensors.
+# iterate through a dataset, reading single tensors.
 #
 
 #

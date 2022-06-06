@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from itypes import Path
 from ..filesystem import File
 
 
@@ -12,6 +13,9 @@ class _Value:
     def variable_name(self):
         path = self._path + ".." + ".." + ".."
         return str(path[-1])
+
+    def variable(self):
+        return self._ds.var[self.variable_name()]
 
     def type(self):
         path = self._path + ".." + ".." + ".." + "type"
@@ -49,44 +53,30 @@ class _Value:
         if self._ds._auto_write:
             self._ds.write()
 
-    def set_data(self, data, extension=None, dims="hwc"):
+    def set_data(self, data, extension=None, **kwargs):
         if data is None:
             self._reg.remove(self._path + "path")
-            return
 
+        variable = self.variable()
         if extension is None:
-            extension = self._scene._data._seq.grid[id].extension()
+            extension = variable.extension()
 
-        if self._scene._data._seq.structured_output():
-            file = Path(self._scene.name()).cd(self.name()).file(f"{id}.{extension}")
+        if self._ds._structured_output:
+            file = Path(self.group_name()).cd(self.item_name()).file(f"{self.variable_name()}.{extension}")
         else:
-            linear_format = self._scene._data._seq.linear_format()
-            if "{id}" not in linear_format:
-                raise Exception("linear_format needs to contain '{id}'")
-            filename = (linear_format % self._linear_index.value()).replace("{id}", id) + '.' + extension
+            linear_format = self._ds._linear_format
+            linear_index = len(self._ds)
+            if "{var}" not in linear_format:
+                raise Exception("linear_format needs to contain '{var}'")
+            filename = (linear_format % linear_index).replace("{var}", self.variable_name()) + '.' + extension
             file = File(filename)
 
-        log.debug(f"Setting data for frame_name='{self._name}', id='{id}' pointing to '{file}'")
-        index = DataIndex(
-            id=id,
-            scene=self._scene.name(),
-            frame=self._name,
-            linear_index=self._linear_index
-        )
-        self[id] = DataItem(
-            index,
-            data=data,
-            rel_file=file,
-            head="memory",
-            dims=dims
-        )
+        abs_file = (self._ds.base_path() + file.path()).abs().file(file.name())
+        variable.write(abs_file, data, **kwargs)
+        self._reg[self._path + "path"] = str(file) if not self._ds._abs_paths else str(abs_file)
 
-        if self._scene._data._seq.write_write_sync():
-            path = self._scene._data._seq.path()
-            if path is None:
-                raise Exception("Synchronized writes require a sequence with filename=... to be able to determine the base path")
-            self[id].set_base_path(path)
-            self[id].write_sync()
+        if self._ds._auto_write:
+            self._ds.write()
 
         return self
 
@@ -98,8 +88,9 @@ class _Value:
         path = path.cd(file.path())
         return path.file(file.name())
 
-    def data(self, dims="hcw", device="numpy", dtype=None):
+    def data(self, **kwargs):
         file = self.file()
         if file is None:
             return None
-        return file.read(dims=dims, dtype=dtype, device=device)
+        file = File(file)
+        return self.variable().read(file, **kwargs)

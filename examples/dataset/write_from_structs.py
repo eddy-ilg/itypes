@@ -34,22 +34,20 @@ print()
 print("Example torch struct scene1_frame1:")
 print(scene1_frame1)
 
-# Create sequence with two colums
-# NOTE: Since a filename is specified here, any new images will be written to disk immediately
-# to the path containing the data.json file
-ds = Dataset(file='out_write_from_struct/data.json')
+# Create dataset
+ds = Dataset(file='out_write_from_structs/data.json', auto_write=True)
 
 # First row: show images
 with ds.viz.new_row() as row:
-    row.add_cell('image', 'image0')
-    row.add_cell('image', 'image1')
-    row.add_cell('flow',  'flow')
+    row.add_cell('image', var='image0')
+    row.add_cell('image', var='image1')
+    row.add_cell('flow',  var='flow')
 
 # Second row: show flow and occlusions
 with ds.viz.new_row() as row:
     row.skip_cell()
     row.skip_cell()
-    row.add_cell('image', 'occ')
+    row.add_cell('image', var='occ')
 
 # Write the data to the sequence
 with ds.seq.group("scene1") as scene1:
@@ -66,13 +64,6 @@ with ds.seq.group("scene2") as scene2:
         # The following will transfer all the variables that are present in ds from the TorchStruct
         frame1.set_struct(scene2_frame1)
 
-    with scene2.item("frame2") as frame2:
-        # The following will transfer all the variables that are present in ds from the TorchStruct
-        frame2.set_struct(scene1_frame2)
-
-# Write the sequence
-seq.write()
-
 print()
-print("To view run: \"iviz out_write_from_struct/data.gridseq\"")
+print("To view run: \"iviz out_write_from_structs/data.json\"")
 print()

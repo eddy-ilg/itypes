@@ -1,22 +1,10 @@
 #!/usr/bin/env python3
 
 #
-# Configure logging
-#
-import logging
-import argparse
-
-parser = argparse.ArgumentParser()
-parser.add_argument("--debug", action="store_true", help="Show debugging output.")
-args = parser.parse_args()
-log_level = logging.DEBUG if args.debug else logging.INFO
-logging.basicConfig(level=log_level, format='[%(levelname)8s] %(name)-15s : %(message)s')
-
-#
-# The following example shows how to conveniently fill in a single frame sequence directly.
+# The following example shows how to conveniently fill in a single frame dataset directly.
 #
 import itypes
-from itypes import File, Sequence
+from itypes import File, Dataset
 
 # Read data into memory
 device = "numpy" # Note: this could be "cuda" as well
@@ -25,7 +13,7 @@ image1 = File('../data/scene1/0000-image1.png').read(dtype=itypes.float32, devic
 flow = File('../data/scene1/0000-flow.flo').read(dtype=itypes.float32, device=device, dims="bchw")
 occ = File('../data/scene1/0000-occ.png').read(dtype=itypes.bool, device=device, dims="bchw")
 
-# Create sequence with two rows
+# Create dataset
 # NOTE: Since a filename is specified here, any new images will be written to disk immediately
 # to the path containing the data.json file
 seq = Sequence(filename='out_write_single_frame_from_tensor/data.json', single_frame=True)

@@ -2,6 +2,7 @@
 
 from ..json_registry import RegistryPath
 from ._variable import _Variable
+from .variables import _instantiate_variable
 
 
 class _Iterator:
@@ -29,7 +30,11 @@ class _Variables:
         return self._path.append(name) in self._reg
 
     def __getitem__(self, name):
-        return _Variable(self._ds, self._path + name)
+        path = self._path + name
+        if path not in self._reg:
+            raise Exception(f"Variable at path \"{path}\" does not exist")
+        type = self._reg[self._path + name + "type"]
+        return _instantiate_variable(type, self._ds, path)
 
     def __delitem__(self, name):
         self.remove(name)

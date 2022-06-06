@@ -42,7 +42,8 @@ class _Visualizations:
             return self
 
         def add_cell(self, type, **kwargs):
-            kwargs['index'] = self._current_col, self._row_idx
+            index = self._current_col, self._row_idx
+            kwargs['index'] = index
             viz = _instantiate_visualization(
                 self._visualizations._ds,
                 self._visualizations._path,
@@ -50,6 +51,9 @@ class _Visualizations:
                 **kwargs
             )
             self._current_col += 1
+            if self._visualizations._ds._single_item:
+                id = self._visualizations._ds.viz[index].id()
+                return self._visualizations._ds._single_item_value[id]
             return viz
 
     class _Column:

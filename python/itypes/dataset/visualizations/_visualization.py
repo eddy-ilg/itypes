@@ -11,6 +11,9 @@ class _Visualization:
         self._path = path
         self._id = path[-1] if path is not None else None
 
+    def id(self):
+        return self._id
+
     def type(self):
         return self._reg[self._path + "type"]
 
