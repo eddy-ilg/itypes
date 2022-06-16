@@ -263,7 +263,7 @@ register_write_function('npz', write_numpy_compressed)
 
 
 #
-# ----------- Text (.txt) -----------
+# ----------- Text (.txt) and HTML (.html) -----------
 #
 
 def read_text(filename):
@@ -271,6 +271,7 @@ def read_text(filename):
     return f.read()
 
 register_read_function('txt', read_text)
+register_read_function('html', read_text)
 
 def write_text(filename, text):
     f = io.StringIO()
@@ -278,6 +279,7 @@ def write_text(filename, text):
     _write_file(filename, f.getvalue(), binary=False)
 
 register_write_function('txt', write_text)
+register_write_function('html', write_text)
 
 
 #

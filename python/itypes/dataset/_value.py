@@ -34,6 +34,7 @@ class _Value:
     def set_ref(self, file, rel_to="cwd", check_if_exists=False):
         if file is None:
             self._reg.remove(self._path + "path")
+            return
 
         file = File(file)
 
@@ -59,6 +60,7 @@ class _Value:
     def set_data(self, data, extension=None, **kwargs):
         if data is None:
             self._reg.remove(self._path + "path")
+            return
 
         variable = self.variable()
         if extension is None:

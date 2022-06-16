@@ -124,6 +124,8 @@ class _Variable:
     def write(self, file, data, **kwargs):
         if file is None:
             raise Exception(f"write() needs a file")
+        if data is None:
+            return
         file = File(file)
         file.write(data, **kwargs)
         return self

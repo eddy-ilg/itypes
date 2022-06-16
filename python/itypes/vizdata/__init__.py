@@ -3,3 +3,4 @@
 from .flow import FlowVisualizationData
 from .float import FloatVisualizationData
 from .image import ImageVisualizationData
+from .text import TextVisualizationData
