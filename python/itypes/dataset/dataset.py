@@ -94,6 +94,7 @@ class Dataset:
         item_id = item["item_id"]
         group_id = item["group_id"]
         del self.seq[group_id][item_id]
+        self._do_auto_write()
 
     def __getitem__(self, index):
         item = self.seq.full_item_list()[index]
@@ -126,3 +127,8 @@ class Dataset:
         else:
             str += self.seq.str(prefix=prefix + indent)
         return str
+
+    def copy_from(self, other, mode="ref"):
+        self.viz.copy_from(other.viz)
+        self.seq.copy_from(other.seq)
+        self.var.copy_from(other.var, mode=mode)

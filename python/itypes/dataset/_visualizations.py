@@ -110,7 +110,23 @@ class _Visualizations:
             type,
             **kwargs
         )
+        self._ds._do_auto_write()
         return viz
+
+    def merge_in(self, other, mode=None, **kwargs):
+        params = other.params()
+        params.update(kwargs)
+        viz = _instantiate_visualization(
+            self._ds,
+            self._path,
+            **params
+        )
+        if mode is not None:
+            for new_id, old_id in zip(viz.variable_ids(), other.variable_ids()):
+                new_var = self._ds.var[new_id]
+                old_var = self._ds.var[old_id]
+                self._ds.var.create(type=old_var.id(), id=new_id)
+                new_var.copy_from(old_var, mode=mode)
 
     def indices(self):
         path = self._path
@@ -165,12 +181,10 @@ class _Visualizations:
 
     def __delitem__(self, id):
         self.remove(id)
+        self._ds._do_auto_write()
 
     def __iter__(self):
         return _Iterator(self)
-
-    def __delitem__(self, id):
-        self.remove(id)
 
     def remove(self, id):
         if is_list(id):

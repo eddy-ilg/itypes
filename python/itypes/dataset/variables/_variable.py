@@ -76,7 +76,7 @@ class _Variable:
                 group_id = item.group_id()
                 item_id = item.id()
                 if i < len(other._ds):
-                    self[group_id, item_id].copy_from(other._ds[i][self.id()], mode=mode)
+                    self[group_id, item_id].copy_from(other._ds[i][other.id()], mode=mode)
         elif indexing == "id":
             for group in self._ds.seq:
                 for item in group:

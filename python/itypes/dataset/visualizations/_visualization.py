@@ -30,7 +30,7 @@ class _Visualization:
         raise NotImplementedError
 
     def str(self, prefix=""):
-        return prefix + f"{self.id()+':':10s}\ttype={self.type():10s}\tvars=[{','.join(self.variable_ids())}]"
+        return prefix + f"{self.id()+':':10s}\ttype={self.type():10s}\tindex={tuple(self.index())}\tvars=[{','.join(self.variable_ids())}]"
 
     def __str__(self):
         return self.str()

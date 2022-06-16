@@ -11,9 +11,6 @@ class _SingleVariableVisualization(_Visualization):
         self._id = self._ds.viz._new_id(id)
         self._path = self._base_path + self._id
 
-        if index in self._ds.viz:
-            self._ds.viz.remove(index)
-
         super().create(colspan, rowspan)
 
         self._reg[self._path + "type"] = type
@@ -37,7 +34,7 @@ class _SingleVariableVisualization(_Visualization):
     def __getattr__(self, item):
         if item =="sv":
             return self.single_value()
-        return super().__getattr__(self, item)
+        raise KeyError(item)
 
     def single_value(self):
         var = self._reg[self._path + "var"]

@@ -85,6 +85,7 @@ class _Group:
 
     def __delitem__(self, id):
         self.remove(id)
+        self._ds._do_auto_write()
 
     def __getitem__(self, id):
         path = self._path + "items" + id

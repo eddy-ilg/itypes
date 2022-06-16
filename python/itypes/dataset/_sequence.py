@@ -164,6 +164,7 @@ class _Sequence:
 
     def __delitem__(self, id):
         self.remove(id)
+        self._ds._do_auto_write()
 
     def __getitem__(self, id):
         path = self._path + "groups" + id
@@ -187,10 +188,8 @@ class _Sequence:
 
     def copy_from(self, other):
         for other_group in other:
-            print('new_group', other_group.id(), other_group.label())
             new_group = self.group(other_group.id(), other_group.label())
             for other_item in other_group:
-                print('new_item', other_item.id(), other_item.label())
                 new_item = new_group.item(other_item.id(), other_item.label())
 
         self._ds._do_auto_write()
