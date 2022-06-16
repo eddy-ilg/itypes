@@ -51,9 +51,6 @@ class _Visualizations:
                 **kwargs
             )
             self._current_col += 1
-            if self._visualizations._ds._single_item:
-                id = self._visualizations._ds.viz[index].id()
-                return self._visualizations._ds._single_item_value[id]
             return viz
 
     class _Column:
@@ -76,15 +73,16 @@ class _Visualizations:
             self._current_row += 1
             return self
 
-        def add_cell(self, type, variable, **kwargs):
-            kwargs['index'] = self._col_idx, self._current_row
+        def add_cell(self, type, **kwargs):
+            index = self._col_idx, self._current_row
+            kwargs['index'] = index
             viz = _instantiate_visualization(
                 self._visualizations._ds,
                 self._visualizations._path,
                 type,
                 **kwargs
             )
-            self._current_row += 1
+            self._current_col += 1
             return viz
 
     def __init__(self, ds):
@@ -103,6 +101,16 @@ class _Visualizations:
         col = self._Column(self, self._current_col)
         self._current_col += 1
         return col
+
+    def create(self, type, index, **kwargs):
+        kwargs['index'] = index
+        viz = _instantiate_visualization(
+            self._ds,
+            self._path,
+            type,
+            **kwargs
+        )
+        return viz
 
     def indices(self):
         path = self._path
@@ -126,6 +134,12 @@ class _Visualizations:
             idx += 1
         return id
 
+    def ids(self):
+        path = self._path
+        if path not in self._reg:
+            return []
+        return list(self._reg[path].keys())
+
     def __contains__(self, id):
         if is_list(id):
             return id in self.indices()
@@ -134,13 +148,15 @@ class _Visualizations:
 
     def __getitem__(self, id):
         if is_list(id):
+            if self._path not in self._reg:
+                raise Exception(f"visualization \"{id}\" not found")
             for key, value in self._reg[self._path].items():
                 if value['index'] == id:
                     return _reinstantiate_visualization(
                         self._ds,
                         self._path + key,
                      )
-            raise Exception(f"visualization \"{id} not found")
+            raise Exception(f"visualization \"{id}\" not found")
         else:
             return _reinstantiate_visualization(
                 self._ds,
@@ -150,12 +166,11 @@ class _Visualizations:
     def __delitem__(self, id):
         self.remove(id)
 
-    def __setitem__(self, key, value):
-        # FIXME
-        self.set(key, value)
-
     def __iter__(self):
         return _Iterator(self)
+
+    def __delitem__(self, id):
+        self.remove(id)
 
     def remove(self, id):
         if is_list(id):
@@ -165,3 +180,20 @@ class _Visualizations:
             raise Exception(f"visualization \"{id} not found")
         else:
             self._reg.remove(self._path + id)
+
+    def __str__(self):
+        return self.str()
+
+    def str(self, prefix=""):
+        str = ""
+        for viz in self:
+            str += viz.str(prefix) + "\n"
+        return str
+
+    def __setitem__(self, id, viz):
+        params = viz.params()
+        self.create(**params, id=id)
+
+    def copy_from(self, other):
+        for other_viz in other:
+            self.create(**other_viz.params(), id=other_viz.id())

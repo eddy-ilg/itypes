@@ -9,15 +9,15 @@ ds = Dataset(file='out_write_single_frame_from_files/data.json', single_item=Tru
 
 # First row: show images
 with ds.viz.new_row() as row:
-    row.add_cell('image', var='image0').set_ext('../data/scene1/0000-image0.png')
-    row.add_cell('image', var='image1').set_ext('../data/scene1/0000-image1.png')
-    row.add_cell('flow',  var='flow').set_ext('../data/scene1/0000-flow.flo')
+    row.add_cell('image', var='image0').var().set_ext('../data/scene1/0000-image0.png')
+    row.add_cell('image', var='image1').var().set_ext('../data/scene1/0000-image1.png')
+    row.add_cell('flow',  var='flow').var().set_ext('../data/scene1/0000-flow.flo')
 
 # Second row: show flow and occlusions
 with ds.viz.new_row() as row:
     row.skip_cell()
     row.skip_cell()
-    row.add_cell('image', var='occ').set_ext('../data/scene1/0000-occ.png')
+    row.add_cell('image', var='occ').var().set_ext('../data/scene1/0000-occ.png')
 
 print()
 print("To view run: \"iviz out_write_single_frame_from_files/data.json\"")

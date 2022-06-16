@@ -24,53 +24,53 @@ from itypes import Dataset, psep
 
 ds = Dataset("out_write_from_files/data.json").read()
 
-psep("Variable names:")
-print(ds.var.names())
+psep("Variable ids:")
+print(ds.var.ids())
 psep()
 print()
 
 psep("Variables:")
 for var in ds.var:
-    print(f"type={var.type():12s} name={var.name():12s}")
+    print(f"type={var.type():12s} id={var.id():12s}")
 psep()
 print()
 
 psep("Values for \"flow\":")
 for value in ds.var["flow"]:
-    print(f"type={value.type():12s} variable_name={value.variable_name():12s} group_name={value.group_name():12s} item_name={value.item_name():12s} file={value.file()}")
+    print(f"type={value.type():12s} variable_id={value.variable_id():12s} group_id={value.group_id():12s} item_id={value.item_id():12s} file={value.file()}")
 psep()
 print()
 
 psep("Visualizations:")
 for viz in ds.viz:
-    print(f"type={viz.type():12s} index={viz.index()}     variable_names={viz.variable_names()}")
+    print(f"type={viz.type():12s} index={viz.index()}     var_ids={viz.variable_ids()}")
 psep()
 print()
 
-psep("All group names:")
-print(ds.seq.group_names())
+psep("All group ids:")
+print(ds.seq.group_ids())
 psep()
 print()
 
-psep("Item names for group \"scene_001\":")
-print(ds.seq.item_names("scene_001"))
+psep("Item ids for group \"scene_001\":")
+print(ds.seq.item_ids("scene_001"))
 psep()
 print()
 
 psep("All groups:")
 for group in ds.seq.group_list():
-    print(f"index={group['index']} group_name={group['name']:12s} group_label=\"{group['label']}\"")
+    print(f"index={group['index']} group_id={group['id']:12s} group_label=\"{group['label']}\"")
 psep()
 print()
 
 psep("All items:")
 for item in ds.seq.full_item_list():
-    print(f"index={item['index']} group_name={item['group_name']:12s} item_name={item['item_name']} group_label=\"{item['group_label']}\" item_label=\"{item['item_label']}\"")
+    print(f"index={item['index']} group_id={item['group_id']:12s} item_id={item['item_id']} group_label=\"{item['group_label']}\" item_label=\"{item['item_label']}\"")
 psep()
 print()
 
 psep("Item for \"Scene-001\":")
 for item in ds.seq.item_list("scene_001"):
-    print(f"index={item['index']} item_name={item['name']} item_label=\"{item['label']}\"")
+    print(f"index={item['index']} item_id={item['id']} item_label=\"{item['label']}\"")
 psep()
 print()

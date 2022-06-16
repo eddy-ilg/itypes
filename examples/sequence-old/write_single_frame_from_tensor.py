@@ -20,15 +20,15 @@ seq = Sequence(filename='out_write_single_frame_from_tensor/data.json', single_f
 
 # First row: show images
 with seq.grid.new_row() as row:
-    row.add_cell('image', 'image0').set_data(image0, dims="bchw")
-    row.add_cell('image', 'image1').set_data(image1, dims="bchw")
-    row.add_cell('flow',  'flow').set_data(flow, dims="bchw")
+    row.add_cell('image', 'image0').var().set_data(image0, dims="bchw")
+    row.add_cell('image', 'image1').var().set_data(image1, dims="bchw")
+    row.add_cell('flow',  'flow').var().set_data(flow, dims="bchw")
 
 # Second row: show flow and occlusions
 with seq.grid.new_row() as row:
     row.skip_cell()
     row.skip_cell()
-    row.add_cell('image', 'occ').set_data(occ, dims="bchw")
+    row.add_cell('image', 'occ').var().set_data(occ, dims="bchw")
 
 seq.write()
 seq.write(filename='out_write_single_frame_from_tensor/data.gridseq')

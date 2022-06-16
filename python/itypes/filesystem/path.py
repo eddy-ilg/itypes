@@ -42,6 +42,10 @@ class Path:
         from .io import exists
         return exists(self.abs().str())
 
+    def is_dir(self):
+        from .io import is_dir
+        return is_dir(self.abs().str())
+
     def empty(self):
         return len(os.listdir(self.str())) == 0
 

@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
+import os
 from ._sequence import _Sequence
 from ._variables import _Variables
 from ._visualizations import _Visualizations
 from ..json_registry import JsonRegistry, RegistryPath
-from ..filesystem import File
+from ..filesystem import File, Path
 
 
 class _Iterator:
@@ -18,9 +19,9 @@ class _Iterator:
             raise StopIteration
 
         item = self._indices[self._index]
-        item_name = item["item_name"]
-        group_name = item["group_name"]
-        value = self._ds.seq[group_name][item_name]
+        item_id = item["item_id"]
+        group_id = item["group_id"]
+        value = self._ds.seq[group_id][item_id]
         self._index += 1
         return value
 
@@ -51,6 +52,10 @@ class Dataset:
             self._linear_format = "{var}"
             self._single_item_value = self.seq.group().item()
 
+    def _do_auto_write(self):
+        if self._auto_write:
+            self.write()
+
     def base_path(self):
         if self._file is None:
             return None
@@ -59,9 +64,15 @@ class Dataset:
     def to_dict(self):
         return self._reg.to_dict()
 
+    def _make_file(self, file):
+        if Path(file.str()).is_dir():
+            return Path(file.str()).file('data.json')
+        return File(file)
+
     def write(self, file=None):
         if file is None:
             file = self._file
+        file = self._make_file(file)
         self._reg.write(file)
         self._file = file
         return self
@@ -69,6 +80,7 @@ class Dataset:
     def read(self, file=None):
         if file is None:
             file = self._file
+        file = self._make_file(file)
         self._reg.read(file)
         self._file = file
         self._dirty = True
@@ -77,12 +89,40 @@ class Dataset:
     def __len__(self):
         return len(self.seq.full_item_list())
 
+    def __delitem__(self, index):
+        item = self.seq.full_item_list()[index]
+        item_id = item["item_id"]
+        group_id = item["group_id"]
+        del self.seq[group_id][item_id]
+
     def __getitem__(self, index):
         item = self.seq.full_item_list()[index]
-        item_name = item["item_name"]
-        group_name = item["group_name"]
-        return self.seq[group_name][item_name]
+        item_id = item["item_id"]
+        group_id = item["group_id"]
+        return self.seq[group_id][item_id]
 
     def __iter__(self):
         return _Iterator(self)
 
+    def __str__(self):
+        return self.str()
+
+    def str(self, prefix=""):
+        indent = "  "
+        str = ""
+        str += prefix + "variables:\n"
+        if len(self.var.ids()) == 0:
+            str += prefix + "  (none)\n"
+        else:
+            str += self.var.str(prefix=prefix + indent)
+        str += prefix + "visualizations:\n"
+        if len(self.viz.ids()) == 0:
+            str += prefix + "  (none)\n"
+        else:
+            str += self.viz.str(prefix=prefix + indent)
+        str += prefix + "sequence:\n"
+        if len(self) == 0:
+            str += prefix + "  (none)\n"
+        else:
+            str += self.seq.str(prefix=prefix + indent)
+        return str

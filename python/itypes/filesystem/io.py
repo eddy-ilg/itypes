@@ -117,6 +117,15 @@ def exists(filename):
 
     return os.path.exists(filename)
 
+def is_dir(filename):
+    global _filesystems
+    for fs in _filesystems:
+        if filename in fs:
+            return True
+
+    return os.path.isdir(filename)
+
+
 #
 # ----------- Proxy Functions -----------
 #

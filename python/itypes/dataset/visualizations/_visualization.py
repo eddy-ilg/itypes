@@ -29,3 +29,8 @@ class _Visualization:
     def _base_id(self):
         raise NotImplementedError
 
+    def str(self, prefix=""):
+        return prefix + f"{self.id()+':':10s}\ttype={self.type():10s}\tvars=[{','.join(self.variable_ids())}]"
+
+    def __str__(self):
+        return self.str()
