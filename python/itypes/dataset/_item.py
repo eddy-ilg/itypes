@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from ..utils import align_tabs
+
 
 class _Iterator:
     def __init__(self, item):
@@ -80,11 +82,13 @@ class _Item:
         return self.str()
 
     def str(self):
+        return align_tabs(self._str())
+
+    def _str(self):
         str = ""
         str += f"{self.id()}"
         if self.label() is not None:
             str += f"\tlabel=\"{self.label()}\""
-
         return str
 
     def set_struct(self, struct):

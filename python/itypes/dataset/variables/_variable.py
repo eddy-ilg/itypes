@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
-from itypes import File
+from ...filesystem import File
 from .._value import _Value
+from ...utils import align_tabs
 
 
 class _Iterator:
@@ -58,13 +59,16 @@ class _Variable:
         group_id, item_id = index
         self[group_id, item_id].copy_from(value)
 
-    def str(self, prefix=""):
+    def _str(self, prefix="", indent="  "):
         indent = "  "
         str = ""
-        str += prefix + f"{self.id()+':':10s}\ttype={self.type():10s}\n"
+        str += prefix + f"{self.id()+':'}\ttype={self.type():10s}\n"
         for value in self:
             str += prefix + indent + f"{value.group_id()}/{value.item_id()} -> {value.file()}\n"
         return str
+
+    def str(self, prefix="", indent="  "):
+        return align_tabs(self._str(prefix, indent))
 
     def __str__(self):
         return self.str()

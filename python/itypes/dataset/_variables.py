@@ -2,6 +2,7 @@
 
 from ..json_registry import RegistryPath
 from .variables import _instantiate_variable
+from ..utils import align_tabs
 
 
 class _Iterator:
@@ -67,10 +68,13 @@ class _Variables:
     def __str__(self):
         return self.str()
 
-    def str(self, prefix=""):
+    def str(self, prefix="", indent="  "):
+        return align_tabs(self._str(prefix, indent))
+
+    def _str(self, prefix="", indent="  "):
         str = ""
         for var in self:
-            str += var.str(prefix)
+            str += var._str(prefix, indent)
         return str
 
     def __setitem__(self, id, var):

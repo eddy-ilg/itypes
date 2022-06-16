@@ -3,6 +3,7 @@
 from ..json_registry import RegistryPath
 from .visualizations.registry import _instantiate_visualization, _reinstantiate_visualization
 from ..type import is_list
+from ..utils import align_tabs
 
 
 class _Iterator:
@@ -198,10 +199,13 @@ class _Visualizations:
     def __str__(self):
         return self.str()
 
-    def str(self, prefix=""):
+    def str(self, prefix="", indent="  "):
+        return align_tabs(self._str(prefix, indent))
+
+    def _str(self, prefix="", indent="  "):
         str = ""
         for viz in self:
-            str += viz.str(prefix) + "\n"
+            str += viz._str(prefix, indent) + "\n"
         return str
 
     def __setitem__(self, id, viz):

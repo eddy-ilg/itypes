@@ -42,6 +42,7 @@ from .utils import psep
 from .utils import make_psep
 from .utils import pprint
 from .utils import lookahead
+from .utils import align_tabs
 
 from .attr_dict import AttrDict
 

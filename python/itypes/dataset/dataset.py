@@ -6,6 +6,7 @@ from ._variables import _Variables
 from ._visualizations import _Visualizations
 from ..json_registry import JsonRegistry, RegistryPath
 from ..filesystem import File, Path
+from ..utils import align_tabs
 
 
 class _Iterator:
@@ -108,24 +109,26 @@ class Dataset:
     def __str__(self):
         return self.str()
 
-    def str(self, prefix=""):
-        indent = "  "
+    def str(self, prefix="", indent="  "):
+        return align_tabs(self._str(prefix, indent))
+
+    def _str(self, prefix="", indent="  "):
         str = ""
         str += prefix + "variables:\n"
         if len(self.var.ids()) == 0:
             str += prefix + "  (none)\n"
         else:
-            str += self.var.str(prefix=prefix + indent)
+            str += self.var._str(prefix=prefix + indent, indent=indent)
         str += prefix + "visualizations:\n"
         if len(self.viz.ids()) == 0:
             str += prefix + "  (none)\n"
         else:
-            str += self.viz.str(prefix=prefix + indent)
+            str += self.viz._str(prefix=prefix + indent, indent=indent)
         str += prefix + "sequence:\n"
         if len(self) == 0:
             str += prefix + "  (none)\n"
         else:
-            str += self.seq.str(prefix=prefix + indent)
+            str += self.seq._str(prefix=prefix + indent, indent=indent)
         return str
 
     def copy_from(self, other, mode="ref"):

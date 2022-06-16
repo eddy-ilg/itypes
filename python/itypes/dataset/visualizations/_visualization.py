@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from copy import copy
+from ...utils import align_tabs
 
 
 class _Visualization:
@@ -29,8 +30,11 @@ class _Visualization:
     def _base_id(self):
         raise NotImplementedError
 
-    def str(self, prefix=""):
-        return prefix + f"{self.id()+':':10s}\ttype={self.type():10s}\tindex={tuple(self.index())}\tvars=[{','.join(self.variable_ids())}]"
+    def _str(self, prefix="", indent="  "):
+        return prefix + f"{self.id()+':'}\ttype={self.type()}\tindex={tuple(self.index())}\tvars=[{','.join(self.variable_ids())}]"
+
+    def str(self, prefix="", indent="  "):
+        return align_tabs(self._str(prefix, indent))
 
     def __str__(self):
         return self.str()

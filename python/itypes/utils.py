@@ -1,5 +1,32 @@
 #!/usr/bin/env python3
 
+def align_tabs(str, min_size=1):
+    lines = str.split("\n")
+
+    while True:
+        found = False
+
+        max_tab_offset = -1
+        for line in lines:
+            index = line.find('\t')
+            if index != -1: found = True
+            max_tab_offset = max(max_tab_offset, index)
+
+        new_lines = []
+        for line in lines:
+            index = line.find('\t')
+            if index == -1:
+                new_lines.append(line)
+                continue
+            difference = (max_tab_offset + min_size - index)
+            new_lines.append(line.replace('\t', " "*difference, 1))
+        lines = new_lines
+
+        if not found:
+            break
+
+    return '\n'.join(lines)
+
 def format_dhm(seconds):
     m, s = divmod(int(seconds), 60)
     h, m = divmod(m, 60)

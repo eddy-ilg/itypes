@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from ._item import _Item
+from ..utils import align_tabs
 
 
 class _Iterator:
@@ -99,8 +100,10 @@ class _Group:
     def __str__(self):
         return self.str()
 
-    def str(self, prefix="", start_index=None):
-        indent = "  "
+    def str(self, prefix="", indent="  ", start_index=None):
+        return align_tabs(self._str(prefix, indent, start_index))
+
+    def _str(self, prefix="", indent="  ", start_index=None):
         str = ""
         str += prefix + f"{self.id()}:"
         if self.label() is not None:
@@ -110,7 +113,7 @@ class _Group:
         index = start_index
         for item in self:
             item_prefix = prefix + f"[{index}] "
-            str += item_prefix + item.str() + "\n"
+            str += item_prefix + item._str() + "\n"
             if index is not None: index = index + 1
 
         return str

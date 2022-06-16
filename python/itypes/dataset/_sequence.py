@@ -2,6 +2,7 @@
 
 from ._group import _Group
 from ..json_registry import RegistryPath
+from ..utils import align_tabs
 
 
 class _Iterator:
@@ -178,11 +179,14 @@ class _Sequence:
     def __str__(self):
         return self.str()
 
-    def str(self, prefix=""):
+    def str(self, prefix="", indent="  "):
+        return align_tabs(self._str(prefix, indent))
+
+    def _str(self, prefix="", indent="  "):
         str = ""
         index = 0
         for group in self:
-            str += group.str(prefix, start_index=index)
+            str += group._str(prefix, indent, start_index=index)
             index += len(group.item_ids())
         return str
 
