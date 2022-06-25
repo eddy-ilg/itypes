@@ -67,7 +67,11 @@ class Dataset:
 
     def _make_file(self, file):
         if Path(file.str()).is_dir():
-            return Path(file.str()).file('data.json')
+            config_file = Path(file.str()).file('data.gridseq')
+            if config_file.exists():
+                return config_file
+            config_file = Path(file.str()).file('data.json')
+            return config_file
         return File(file)
 
     def write(self, file=None):
@@ -82,9 +86,14 @@ class Dataset:
         if file is None:
             file = self._file
         file = self._make_file(file)
+
+        if file.extension() == "gridseq":
+            from ._legacy import read_gridseq
+            read_gridseq(self, file)
+            return self
+
         self._reg.read(file)
         self._file = file
-        self._dirty = True
         return self
 
     def __len__(self):

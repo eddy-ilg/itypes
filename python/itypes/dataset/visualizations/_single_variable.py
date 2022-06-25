@@ -5,7 +5,7 @@ from copy import deepcopy
 
 
 class _SingleVariableVisualization(_Visualization):
-    def create(self, type, var, index, id=None, colspan=None, rowspan=None):
+    def create(self, type, var, index, id=None, colspan=None, rowspan=None, label=None):
         if id is None:
             id = var
         if id is None:
@@ -17,6 +17,7 @@ class _SingleVariableVisualization(_Visualization):
 
         self._reg[self._path + "type"] = type
         if var is not None: self._set("var", var)
+        if label is not None: self._set("label", label)
         self._set("index", index)
 
         if var not in self._ds.var:
