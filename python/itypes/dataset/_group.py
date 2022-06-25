@@ -65,8 +65,6 @@ class _Group:
     def item(self, id=None, label=None):
         if id is None:
             id = self._new_id()
-        if id is None and label is not None:
-            id = label
         if label is None:
             label = id
         path = self._path + "items" + id

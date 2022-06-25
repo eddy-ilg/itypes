@@ -12,20 +12,27 @@ class _Visualization:
         self._path = path
         self._id = path[-1] if path is not None else None
 
+    def _set(self, key, value):
+        self._reg[self._path + key] = value
+
+    def _get(self, key):
+        if self._path + key not in self._reg:
+            return None
+        return self._reg[self._path + key]
+
     def id(self):
         return self._id
 
     def type(self):
+        return self._get("type")
         return self._reg[self._path + "type"]
 
     def create(self, colspan=None, rowspan=None):
-        if colspan is not None:
-            self._reg[self._path + "colspan"] = colspan
-        if rowspan is not None:
-            self._reg[self._path + "rowspan"] = rowspan
+        if colspan is not None: self._set("colspan", colspan)
+        if rowspan is not None: self._set("rowspan", rowspan)
 
     def index(self):
-        return self._reg[self._path + "index"]
+        return self._get("index")
 
     def _base_id(self):
         raise NotImplementedError

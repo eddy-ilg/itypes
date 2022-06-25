@@ -16,15 +16,14 @@ class _SingleVariableVisualization(_Visualization):
         super().create(colspan, rowspan)
 
         self._reg[self._path + "type"] = type
-        if var is not None:
-            self._reg[self._path + "var"] = var
-        self._reg[self._path + "index"] = index
+        if var is not None: self._set("var", var)
+        self._set("index", index)
 
         if var not in self._ds.var:
             self._ds.var.create(self.type(), var)
 
     def _base_id(self):
-        return self._reg[self._path + "var"]
+        return self._get("var")
 
     def params(self):
         if self._path not in self._reg:
@@ -32,7 +31,7 @@ class _SingleVariableVisualization(_Visualization):
         return deepcopy(self._reg[self._path])
 
     def variable_ids(self):
-        return [self._reg[self._path + "var"]]
+        return [self._get("var")]
 
     def __getattr__(self, item):
         if item =="sv":
@@ -40,6 +39,6 @@ class _SingleVariableVisualization(_Visualization):
         raise KeyError(item)
 
     def single_value(self):
-        var = self._reg[self._path + "var"]
+        var = self._get("var")
         return self._ds._single_item_value[var]
 

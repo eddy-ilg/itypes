@@ -46,14 +46,21 @@ class _Sequence:
         self._rebuild_index = True
         self._needs_index_rebuild = False
 
+        self._new_item_counter = 0
+
     def deferred_index_rebuild(self):
         return _DeferredIndexRebuildContext(self)
 
-    def group(self, id="default", label=None):
+    def _new_id(self):
+        id = "%04d" % self._new_item_counter
+        self._new_item_counter += 1
+        return id
+
+    def group(self, id=None, label=None):
+        if id is None:
+            id = self._new_id()
         if label is None:
             label = id
-        if id == "default" and label is not None:
-            id = label
         path = self._path + "groups" + id
         return _Group(self._ds, path, label)
 

@@ -9,7 +9,7 @@ class _ImageVisualization(_SingleVariableVisualization):
     def data(self, group_name, item_name):
         if self._path + "var" not in self._reg:
             return ImageVisualizationData(None)
-        variable_name = self._reg[self._path + "var"]
+        variable_name = self._get("var")
         if (group_name, item_name) not in self._ds.var[variable_name]:
             return ImageVisualizationData(None)
         value = self._ds.var[variable_name][group_name, item_name]

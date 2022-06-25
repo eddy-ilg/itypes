@@ -6,7 +6,7 @@ from ..filesystem import File
 
 class _Persistent:
     def __init__(self, data=None, file=None, **read_kwargs):
-        if file is None and is_str(data) or isinstance(data, File):
+        if file is None and isinstance(data, File):
             self._file = File(data)
             self._data = None
         else:
