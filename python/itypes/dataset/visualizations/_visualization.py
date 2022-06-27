@@ -25,11 +25,20 @@ class _Visualization:
 
     def type(self):
         return self._get("type")
-        return self._reg[self._path + "type"]
 
     def create(self, colspan=None, rowspan=None):
         if colspan is not None: self._set("colspan", colspan)
         if rowspan is not None: self._set("rowspan", rowspan)
+
+    def rowspan(self):
+        rowspan = self._get("rowspan")
+        if rowspan is None: return 1
+        return rowspan 
+
+    def colspan(self):
+        colspan = self._get("colspan")
+        if colspan is None: return 1
+        return colspan 
 
     def index(self):
         return self._get("index")

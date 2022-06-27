@@ -48,6 +48,7 @@ class _TextVisualization(_SingleVariableVisualization):
         return TextDisplay(manager,
                text=text,
                id=self._id,
+               label=self._get("label"),
                width=self._get("width"),
                height=self._get("height"),
                valign=self._get("valign"),

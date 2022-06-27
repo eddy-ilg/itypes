@@ -23,7 +23,12 @@ class _FloatVisualization(_SingleVariableVisualization):
 
     def create_display(self, manager):
         from iviz.widgets.displays import FloatDisplay
-        return FloatDisplay(manager, self.create_pixviz(), id=self._id)
+        return FloatDisplay(
+            manager,
+            self.create_pixviz(),
+            id=self._id,
+            label=self._get("label")
+        )
 
 
 register_visualization("float", _FloatVisualization)

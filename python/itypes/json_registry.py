@@ -146,6 +146,11 @@ class JsonRegistry(dict):
         key = RegistryPath(key)
         return _getitem(self, key, key)
 
+    def get(self, key, default):
+        if key in self:
+            return self[key]
+        return default
+
     def __setitem__(self, key, value):
         self._key_cache[str(key)] = value
         if '/' not in str(key):

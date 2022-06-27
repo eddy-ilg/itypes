@@ -23,6 +23,11 @@ class _ImageVisualization(_SingleVariableVisualization):
 
     def create_display(self, manager):
         from iviz.widgets.displays import ImageDisplay
-        return ImageDisplay(manager, self.create_pixviz(), id=self._id)
+        return ImageDisplay(
+            manager,
+            self.create_pixviz(),
+            id=self._id,
+            label=self._get("label")
+        )
 
 register_visualization("image", _ImageVisualization)

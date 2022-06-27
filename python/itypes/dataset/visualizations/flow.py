@@ -23,7 +23,12 @@ class _FlowVisualization(_SingleVariableVisualization):
 
     def create_display(self, manager):
         from iviz.widgets.displays import FlowDisplay
-        return FlowDisplay(manager, self.create_pixviz(), id=self._id)
+        return FlowDisplay(
+            manager,
+            self.create_pixviz(),
+            id=self._id,
+            label=self._get("label")
+        )
 
 
 register_visualization("flow", _FlowVisualization)

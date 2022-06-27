@@ -4,7 +4,7 @@ from ..json_registry import RegistryPath
 from .visualizations.registry import _instantiate_visualization, _reinstantiate_visualization
 from ..type import is_list
 from ..utils import align_tabs
-
+from ..grid2d import Grid2D
 
 class _Iterator:
     def __init__(self, viz):
@@ -52,6 +52,8 @@ class _Visualizations:
                 **kwargs
             )
             self._current_col += 1
+            while self._visualizations.is_occupied((self._current_col, self._row_idx)):
+                self._current_col += 1
             return viz
 
     class _Column:
@@ -83,7 +85,9 @@ class _Visualizations:
                 type,
                 **kwargs
             )
-            self._current_col += 1
+            self._current_row += 1
+            while self._visualizations.is_occupied((self._col_idx, self._current_row)):
+                self._current_row += 1
             return viz
 
     def __init__(self, ds):
@@ -92,6 +96,16 @@ class _Visualizations:
         self._path = RegistryPath("visualizations")
         self._current_col = 0
         self._current_row = 0
+
+    def is_occupied(self, index):
+        col, row = index
+        for viz in self:
+            viz_col, viz_row = viz.index()
+            viz_cs, viz_rs = viz.colspan(), viz.rowspan()
+            if col >= viz_col and col < viz_col + viz_cs and \
+               row >= viz_row and row < viz_row + viz_rs:
+                return True
+        return False
 
     def new_row(self):
         row = self._Row(self, self._current_row)
