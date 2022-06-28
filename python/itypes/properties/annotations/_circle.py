@@ -4,15 +4,14 @@ from .registry import register_annotation
 from ._annotation import _Annotation
 
 
-class _LineAnnotation(_Annotation):
+class _CircleAnnotation(_Annotation):
     def __init__(self, props, path):
-        super().__init__("line", props, path)
+        super().__init__("circle", props, path)
 
-    def create(self, x0, y0, x1, y1, **kwargs):
-        self._set("x0", x0)
-        self._set("y0", y0)
-        self._set("x1", x1)
-        self._set("y1", y1)
+    def create(self, x, y, r, **kwargs):
+        self._set("x", x)
+        self._set("y", y)
+        self._set("r", r)
 
         if "color" in kwargs: self.set_color(kwargs.pop("color"))
         if "alpha" in kwargs: self._set("alpha", kwargs.pop("alpha"))
@@ -27,10 +26,11 @@ class _LineAnnotation(_Annotation):
 
     def paint(self, painter):
         self._set_pen(painter)
-        x0 = self._get("x0")
-        y0 = self._get("y0")
-        x1 = self._get("x1")
-        y1 = self._get("y1")
-        painter.drawLine(x0, y0, x1, y1)
+        x = self._get("x")
+        y = self._get("y")
+        r = self._get("r")
+        from PyQt5.QtCore import QRect
+        rect = QRect(x-r, y-r, 2*r, 2*r)
+        painter.drawEllipse(rect)
 
-register_annotation("line", _LineAnnotation)
+register_annotation("circle", _CircleAnnotation)

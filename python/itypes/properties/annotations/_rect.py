@@ -4,9 +4,9 @@ from .registry import register_annotation
 from ._annotation import _Annotation
 
 
-class _LineAnnotation(_Annotation):
+class _RectAnnotation(_Annotation):
     def __init__(self, props, path):
-        super().__init__("line", props, path)
+        super().__init__("rect", props, path)
 
     def create(self, x0, y0, x1, y1, **kwargs):
         self._set("x0", x0)
@@ -31,6 +31,6 @@ class _LineAnnotation(_Annotation):
         y0 = self._get("y0")
         x1 = self._get("x1")
         y1 = self._get("y1")
-        painter.drawLine(x0, y0, x1, y1)
+        painter.drawRect(x0, y0, x1, y1)
 
-register_annotation("line", _LineAnnotation)
+register_annotation("rect", _RectAnnotation)
