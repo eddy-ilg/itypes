@@ -1,24 +1,25 @@
 #!/usr/bin/env python3
 
 from ._persistent import _Persistent
+from ._persistent_props import _PersistentProperties
 
 
 class FloatVisualizationData:
-    def __init__(self, float, annotations=None, label_mask=None):
+    def __init__(self, float, props=None, label_mask=None):
         self._float = _Persistent(float)
-        self._annotations = _Persistent(annotations)
+        self._props = _PersistentProperties(props)
         self._label_mask = _Persistent(label_mask, dims="hwc")
 
     def float(self):
         return self._float
 
-    def annotations(self):
-        return self._annotations
+    def props(self):
+        return self._props
 
     def label_mask(self):
         return self._label_mask
 
     def reload(self):
         self._float.reload()
-        self._annotations.reload()
+        self._props.reload()
         self._label_mask.reload()

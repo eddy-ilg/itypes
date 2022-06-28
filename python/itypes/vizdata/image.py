@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
 from ._persistent import _Persistent
+from ._persistent_props import _PersistentProperties
 
 
 class ImageVisualizationData:
-    def __init__(self, image, annotations=None, label_mask=None, disp_fields=None):
+    def __init__(self, image, props=None, label_mask=None, disp_fields=None):
         self._image = _Persistent(image, dims="hwc")
-        self._annotations = _Persistent(annotations)
+        self._props = _PersistentProperties(props)
         self._label_mask = _Persistent(label_mask, dims="hwc")
         if disp_fields is None:
             disp_fields = {}
@@ -17,8 +18,8 @@ class ImageVisualizationData:
     def image(self):
         return self._image
 
-    def annotations(self):
-        return self._annotations
+    def props(self):
+        return self._props
 
     def label_mask(self):
         return self._label_mask
@@ -28,7 +29,8 @@ class ImageVisualizationData:
 
     def reload(self):
         self._image.reload()
-        self._annotations.reload()
+        self._props.reload()
         self._label_mask.reload()
         for field in self._disp_fields.values():
             field.reload()
+

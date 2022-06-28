@@ -5,7 +5,7 @@ from copy import deepcopy
 
 
 class _SingleVariableVisualization(_Visualization):
-    def create(self, type, var, index, id=None, colspan=None, rowspan=None, label=None):
+    def create(self, type, var, index, id=None, colspan=None, rowspan=None, label=None, props=None):
         if id is None:
             id = var
         if id is None:
@@ -17,11 +17,15 @@ class _SingleVariableVisualization(_Visualization):
 
         self._reg[self._path + "type"] = type
         if var is not None: self._set("var", var)
+        if props is not None: self._set("props", props)
         if label is not None: self._set("label", label)
         self._set("index", index)
 
         if var not in self._ds.var:
             self._ds.var.create(self.type(), var)
+
+        if props is not None and props not in self._ds.var:
+            self._ds.var.create("props", props)
 
     def _base_id(self):
         return self._get("var")
@@ -43,3 +47,20 @@ class _SingleVariableVisualization(_Visualization):
         var = self._get("var")
         return self._ds._single_item_value[var]
 
+    def data(self, group_name, item_name):
+        if self._path + "var" not in self._reg:
+            return None
+        variable_name = self._get("var")
+        if (group_name, item_name) not in self._ds.var[variable_name]:
+            return None
+        value = self._ds.var[variable_name][group_name, item_name]
+        file = value.file()
+
+        props_file = None
+        if self._path + "props" in self._reg:
+            variable_name = self._get("props")
+            if (group_name, item_name) in self._ds.var[variable_name]:
+                value = self._ds.var[variable_name][group_name, item_name]
+                props_file = value.file()
+
+        return self.DataClass(file, props_file)

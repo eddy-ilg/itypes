@@ -126,6 +126,8 @@ class _Variable:
             raise Exception(f"write() needs a file")
         if data is None:
             return
+        if file.extension() == "json" and hasattr(data, "to_dict"):
+            data = data.to_dict()
         file = File(file)
         file.write(data, **kwargs)
         return self

@@ -5,7 +5,7 @@ from ..filesystem import File
 
 
 class _Persistent:
-    def __init__(self, data=None, file=None, **read_kwargs):
+    def __init__(self, data=None, file=None, load_class=None, **read_kwargs):
         if file is None and isinstance(data, File):
             self._file = File(data)
             self._data = None
@@ -13,6 +13,7 @@ class _Persistent:
             self._data = data
             self._file = File(file) if file is not None else None
 
+        self._load_class = load_class
         self._read_kwargs = read_kwargs
         self._valid = self._data is not None or self._file is not None
         self._head = "memory" if self._data is not None else "disk"
@@ -33,7 +34,10 @@ class _Persistent:
 
     def data(self):
         self._to_memory()
-        return self._data
+        data = self._data
+        if self._load_class is not None:
+            return self._load_class(data)
+        return data
 
     def numpy(self):
         if not self._valid:

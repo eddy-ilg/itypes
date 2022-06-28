@@ -12,6 +12,9 @@ def addr(x):
         return None
     return hex(id(x))
 
+def is_number(x):
+    return isinstance(x, int) or isinstance(x, float)
+
 def is_list(x):
     if isinstance(x, tuple) or isinstance(x, list):
         return True

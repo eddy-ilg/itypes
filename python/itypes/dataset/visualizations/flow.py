@@ -6,16 +6,7 @@ from ._single_variable import _SingleVariableVisualization
 
 
 class _FlowVisualization(_SingleVariableVisualization):
-    def data(self, group_name, item_name):
-        if self._path + "var" not in self._reg:
-            return FlowVisualizationData(None)
-        variable_name = self._get("var")
-        if (group_name, item_name) not in self._ds.var[variable_name]:
-            return FlowVisualizationData(None)
-        value = self._ds.var[variable_name][group_name, item_name]
-        file = value.file()
-
-        return FlowVisualizationData(file)
+    DataClass = FlowVisualizationData
 
     def create_pixviz(self):
         from iviz.renderers import FlowPixmapVisualization

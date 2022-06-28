@@ -70,7 +70,7 @@ class _Value:
             file = Path(self.group_id()).cd(self.item_id()).file(f"{self.variable_id()}.{extension}")
         else:
             linear_format = self._ds._linear_format
-            linear_index = len(self._ds)
+            linear_index = len(self._ds) - 1
             if "{var}" not in linear_format:
                 raise Exception("linear_format needs to contain '{var}'")
             filename = (linear_format % linear_index).replace("{var}", self.variable_id()) + '.' + extension

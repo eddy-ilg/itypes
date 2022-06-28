@@ -6,16 +6,7 @@ from ._single_variable import _SingleVariableVisualization
 
 
 class _FloatVisualization(_SingleVariableVisualization):
-    def data(self, group_name, item_name):
-        if self._path + "var" not in self._reg:
-            return None
-        variable_name = self._get("var")
-        if (group_name, item_name) not in self._ds.var[variable_name]:
-            return None
-        value = self._ds.var[variable_name][group_name, item_name]
-        file = value.file()
-
-        return FloatVisualizationData(file)
+    DataClass = FloatVisualizationData
 
     def create_pixviz(self):
         from iviz.renderers import FloatPixmapVisualization

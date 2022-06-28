@@ -56,6 +56,8 @@ from .struct import TorchStruct
 from .dataset import Dataset
 from .dataset import register_visualization
 
+from .properties import Properties
+
 from .json_registry import JsonRegistry
 
 from .paths import itypes_root
