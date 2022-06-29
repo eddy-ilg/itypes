@@ -5,13 +5,17 @@ from ._persistent_props import _PersistentProperties
 
 
 class FlowVisualizationData:
-    def __init__(self, flow, props=None, label_mask=None):
+    def __init__(self, flow, props=None, label_mask=None, var_id=None):
         self._flow = _Persistent(flow)
         self._props = _PersistentProperties(props)
         self._label_mask = _Persistent(label_mask, dims="hwc")
+        self._var_id = var_id
 
-    def float(self):
-        return self._float
+    def var_id(self):
+        return self._var_id
+
+    def props(self):
+        return self._props
 
     def flow(self):
         return self._flow

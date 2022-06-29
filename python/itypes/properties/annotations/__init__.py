@@ -7,3 +7,6 @@ from ._line import _LineAnnotation
 from ._rect import _RectAnnotation
 from ._circle import _CircleAnnotation
 from ._mark import _MarkAnnotation
+from ._text import _TextAnnotation
+from ._box import _BoxAnnotation
+from ._ellipse import _EllipseAnnotation

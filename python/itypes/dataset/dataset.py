@@ -57,6 +57,9 @@ class Dataset:
         if self._auto_write:
             self.write()
 
+    def file(self):
+        return self._file
+
     def base_path(self):
         if self._file is None:
             return None
@@ -140,7 +143,54 @@ class Dataset:
             str += self.seq._str(prefix=prefix + indent, indent=indent)
         return str
 
+    def merge(self, other, mode="ref", placement="bottom"):
+        if len(self) == 0:
+            self.copy_from(other, mode=mode)
+            return
+
+        # Copy variables
+        var_mapping = {}
+        for var in other.var:
+            new_id = var.id()
+            idx = 0
+            while new_id in self.var:
+                idx += 1
+                new_id = f"%d_{var.id()}" % idx
+
+            var_mapping[var.id()] = new_id
+            self.var.create(type=var.type(), id=new_id)
+            self.var[new_id].copy_from(var, mode=mode)
+
+        # Copy visualizations to bottom
+        if placement == "bottom":
+            max_row = 0
+            for viz in self.viz:
+                max_row = max(max_row, viz.index()[1])
+        elif placement == "right":
+            max_col = 0
+            for viz in self.viz:
+                max_col = max(max_col, viz.index()[0])
+
+        for viz in other.viz:
+            new_id = viz.id()
+            idx = 0
+            while new_id in self.viz:
+                idx += 1
+                new_id = f"%d_{viz.id()}" % idx
+
+            params = viz.params()
+            if placement == "bottom":
+                params["index"][1] += max_row + 1
+            else:
+                params["index"][0] += max_col + 1
+            self.viz.create(**params, id=new_id)
+            self.viz[new_id].change_vars(var_mapping)
+
     def copy_from(self, other, mode="ref"):
         self.viz.copy_from(other.viz)
         self.seq.copy_from(other.seq)
         self.var.copy_from(other.var, mode=mode)
+
+    def template_from(self, other):
+        self.viz.copy_from(other.viz)
+        self.var.copy_from(other.var, include_data=False)

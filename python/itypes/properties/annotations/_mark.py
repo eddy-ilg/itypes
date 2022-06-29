@@ -6,29 +6,33 @@ from ...type import is_str, is_list, is_number
 
 
 def paint_plus(painter, x, y, size):
-    r = size // 2
-    painter.drawLine(x-r, y, x+r, y)
-    painter.drawLine(x, y-r, x, y+r)
+    r = size / 2
+    from PyQt5.QtCore import QLineF
+    painter.drawLine(QLineF(x-r, y, x+r, y))
+    painter.drawLine(QLineF(x, y-r, x, y+r))
 
 def paint_cross(painter, x, y, size):
-    r = size // 2
-    painter.drawLine(x-r, y-r, x+r, y+r)
-    painter.drawLine(x-r, y+r, x+r, y-r)
+    r = size / 2
+    from PyQt5.QtCore import QLineF
+    painter.drawLine(QLineF(x-r, y-r, x+r, y+r))
+    painter.drawLine(QLineF(x-r, y+r, x+r, y-r))
 
 def paint_square(painter, x, y, size):
-    r = size // 2
-    painter.drawRect(x-r, y-r, 2*r, 2*r)
+    r = size / 2
+    from PyQt5.QtCore import QRectF
+    painter.drawRect(QRectF(x-r, y-r, 2*r, 2*r))
 
 def paint_triangle(painter, x, y, size):
-    r = size // 2
-    painter.drawLine(x-r, y, x, y-r)
-    painter.drawLine(x+r, y, x, y-r)
-    painter.drawLine(x-r, y, x+r, y)
+    r = size / 2
+    from PyQt5.QtCore import QLineF
+    painter.drawLine(QLineF(x-r, y, x, y-r))
+    painter.drawLine(QLineF(x+r, y, x, y-r))
+    painter.drawLine(QLineF(x-r, y, x+r, y))
 
 def paint_circle(painter, x, y, size):
-    r = size // 2
-    from PyQt5.QtCore import QRect
-    rect = QRect(x-r, y-r, 2*r, 2*r)
+    r = size / 2
+    from PyQt5.QtCore import QRectF
+    rect = QRectF(x-r, y-r, 2*r, 2*r)
     painter.drawEllipse(rect)
 
 _shapes = {
@@ -73,10 +77,8 @@ class _MarkAnnotation(_Annotation):
         self._set_pen(painter)
         x = self._get("x")
         y = self._get("y")
-        shape = self._get("shape")
-        if shape is None: shape = '+'
-        size = self._get("size")
-        if size is None: size = 5
+        shape = self._get("shape", '+')
+        size = self._get("size", 5) * painter.scale_coeff
         _shapes[shape](painter, x, y, size)
 
 register_annotation("mark", _MarkAnnotation)

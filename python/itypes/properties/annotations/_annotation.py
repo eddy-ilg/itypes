@@ -40,9 +40,9 @@ class _Annotation:
     def _set(self, key, value):
         self._reg[self._path + key] = value
 
-    def _get(self, key):
+    def _get(self, key, default=None):
         if self._path + key not in self._reg:
-            return None
+            return default
         return self._reg[self._path + key]
 
     def set_color(self, color):
@@ -87,13 +87,13 @@ class _Annotation:
 
         brush = QBrush(color)
 
-        lw = painter.lw_coeff
+        lw = painter.scale_coeff
         if self._path + "lw" in self._reg:
             lw *= self._get("lw")
 
         pen = QPen(brush, lw)
         if self._path + "ls" in self._reg:
-            pattern = [x / painter.lw_coeff for x in _line_styles[self._reg[self._path + "ls"]]]
+            pattern = [x / painter.scale_coeff for x in _line_styles[self._reg[self._path + "ls"]]]
             pen.setDashPattern(pattern)
 
         painter.setPen(pen)

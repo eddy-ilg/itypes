@@ -27,6 +27,14 @@ class _SingleVariableVisualization(_Visualization):
         if props is not None and props not in self._ds.var:
             self._ds.var.create("props", props)
 
+    def change_vars(self, map):
+        var = self._get("var")
+        if var in map:
+            self._set("var", map[var])
+        props = self._get("props")
+        if props in map:
+            self._set("props", map[props])
+
     def _base_id(self):
         return self._get("var")
 
@@ -47,20 +55,20 @@ class _SingleVariableVisualization(_Visualization):
         var = self._get("var")
         return self._ds._single_item_value[var]
 
-    def data(self, group_name, item_name):
+    def data(self, group_id, item_id):
         if self._path + "var" not in self._reg:
             return None
-        variable_name = self._get("var")
-        if (group_name, item_name) not in self._ds.var[variable_name]:
+        var_id = self._get("var")
+        if (group_id, item_id) not in self._ds.var[var_id]:
             return None
-        value = self._ds.var[variable_name][group_name, item_name]
+        value = self._ds.var[var_id][group_id, item_id]
         file = value.file()
 
         props_file = None
         if self._path + "props" in self._reg:
-            variable_name = self._get("props")
-            if (group_name, item_name) in self._ds.var[variable_name]:
-                value = self._ds.var[variable_name][group_name, item_name]
+            var_id = self._get("props")
+            if (group_id, item_id) in self._ds.var[var_id]:
+                value = self._ds.var[var_id][group_id, item_id]
                 props_file = value.file()
 
-        return self.DataClass(file, props_file)
+        return self.DataClass(file, props_file, var_id=var_id)

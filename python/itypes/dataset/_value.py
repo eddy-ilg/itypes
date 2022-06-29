@@ -85,12 +85,14 @@ class _Value:
         return self
 
     def file(self):
-        path = self._ds.base_path()
         if self._path + "path" not in self._reg:
             return None
         file = File(self._reg[self._path + "path"])
-        path = path.cd(file.path()).abs()
-        return path.file(file.name())
+        path = self._ds.base_path()
+        if path is not None:
+            path = path.cd(file.path()).abs()
+            return path.file(file.name())
+        return file
 
     def data(self, **kwargs):
         file = self.file()

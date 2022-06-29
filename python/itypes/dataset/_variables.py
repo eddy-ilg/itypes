@@ -81,7 +81,8 @@ class _Variables:
         var = self.create(var.type(), var.id())
         var.copy_from(var, indexing="linear", mode="ref")
 
-    def copy_from(self, other, indexing="linear", mode="ref"):
+    def copy_from(self, other, indexing="linear", mode="ref", include_data=True):
         for other_var in other:
             var = self.create(other_var.type(), other_var.id())
-            var.copy_from(other_var, indexing=indexing, mode=mode)
+            if include_data:
+                var.copy_from(other_var, indexing=indexing, mode=mode)
