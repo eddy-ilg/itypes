@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
 
+### --------------------------------------- ###
+### Part of iTypes                          ###
+### (C) 2022 Eddy ilg (me@eddy-ilg.net)     ###
+### MIT License                             ###
+### See https://github.com/eddy-ilg/itypes  ###
+### --------------------------------------- ###
+
 from itypes import Grid2D
 
 g = Grid2D(none_in_range=True, none_outside_range=True)

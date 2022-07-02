@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
 
+### --------------------------------------- ###
+### Part of iTypes                          ###
+### (C) 2022 Eddy ilg (me@eddy-ilg.net)     ###
+### MIT License                             ###
+### See https://github.com/eddy-ilg/itypes  ###
+### --------------------------------------- ###
+
 from .registry import _instantiate_annotation
 from .registry import _reinstantiate_annotation
 

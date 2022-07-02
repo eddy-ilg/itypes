@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
 
+### --------------------------------------- ###
+### Part of iTypes                          ###
+### (C) 2022 Eddy ilg (me@eddy-ilg.net)     ###
+### MIT License                             ###
+### See https://github.com/eddy-ilg/itypes  ###
+### --------------------------------------- ###
+
 _variable_types = {}
 def register_variable(type, variable_class):
     global _variable_types

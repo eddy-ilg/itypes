@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
 
+### --------------------------------------- ###
+### Part of iTypes                          ###
+### (C) 2022 Eddy ilg (me@eddy-ilg.net)     ###
+### MIT License                             ###
+### See https://github.com/eddy-ilg/itypes  ###
+### --------------------------------------- ###
+
 _annotation_types = {}
 def register_annotation(type, annotation_class):
     global _annotation_types

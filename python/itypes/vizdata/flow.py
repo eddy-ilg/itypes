@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
 
+### --------------------------------------- ###
+### Part of iTypes                          ###
+### (C) 2022 Eddy ilg (me@eddy-ilg.net)     ###
+### MIT License                             ###
+### See https://github.com/eddy-ilg/itypes  ###
+### --------------------------------------- ###
+
 from ._persistent import _Persistent
 from ._persistent_props import _PersistentProperties
 

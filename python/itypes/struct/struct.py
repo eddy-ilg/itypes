@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
 
+### --------------------------------------- ###
+### Part of iTypes                          ###
+### (C) 2022 Eddy ilg (me@eddy-ilg.net)     ###
+### MIT License                             ###
+### See https://github.com/eddy-ilg/itypes  ###
+### --------------------------------------- ###
+
 from ..attr_dict import AttrDict
 from .helper import _translate, _apply, _flatten, _flatten_keys, _dict_to_str, _create_empty, KeyPath
 from copy import deepcopy
