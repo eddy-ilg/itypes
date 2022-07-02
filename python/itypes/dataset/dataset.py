@@ -3,6 +3,7 @@
 import os
 from ._sequence import _Sequence
 from ._variables import _Variables
+from ._metrics import _Metrics
 from ._visualizations import _Visualizations
 from ..json_registry import JsonRegistry, RegistryPath
 from ..filesystem import File, Path
@@ -45,11 +46,12 @@ class Dataset:
         self.viz = _Visualizations(self)
         self.var = _Variables(self)
         self.seq = _Sequence(self)
+        self.met = _Metrics(self)
         self._file = File(file) if file is not None else None
 
         self._single_item = single_item
         if single_item:
-            self._stuctured_output = False
+            self._structured_output = False
             self._linear_format = "{var}"
             self._single_item_value = self.seq.group().item()
 
@@ -136,6 +138,11 @@ class Dataset:
             str += prefix + "  (none)\n"
         else:
             str += self.viz._str(prefix=prefix + indent, indent=indent)
+        str += prefix + "metrics:\n"
+        if len(self.met.ids()) == 0:
+            str += prefix + "  (none)\n"
+        else:
+            str += self.met._str(prefix=prefix + indent, indent=indent)
         str += prefix + "sequence:\n"
         if len(self) == 0:
             str += prefix + "  (none)\n"
@@ -186,10 +193,14 @@ class Dataset:
             self.viz.create(**params, id=new_id)
             self.viz[new_id].change_vars(var_mapping)
 
+        for met in other.met:
+            self.met[met.id()].change_vars(var_mapping)
+
     def copy_from(self, other, mode="ref"):
         self.viz.copy_from(other.viz)
         self.seq.copy_from(other.seq)
         self.var.copy_from(other.var, mode=mode)
+        self.met.copy_from(other.met)
 
     def template_from(self, other):
         self.viz.copy_from(other.viz)

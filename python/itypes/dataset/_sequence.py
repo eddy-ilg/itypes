@@ -3,6 +3,7 @@
 from ._group import _Group
 from ..json_registry import RegistryPath
 from ..utils import align_tabs
+from ._node import _DatasetNode
 
 
 class _Iterator:
@@ -37,11 +38,9 @@ class _DeferredIndexRebuildContext:
             return self
 
 
-class _Sequence:
+class _Sequence(_DatasetNode):
     def __init__(self, ds):
-        self._ds = ds
-        self._reg = ds._reg
-        self._path = RegistryPath("sequence")
+        super().__init__(ds, RegistryPath("sequence"))
 
         self._rebuild_index = True
         self._needs_index_rebuild = False
@@ -114,22 +113,13 @@ class _Sequence:
         })
 
     def full_item_list(self):
-        path = self._path + "item_list"
-        if path not in self._reg:
-            return []
-        return self._reg[path]
+        return self._get("item_list", [])
 
     def item_list(self, group_id):
-        path = self._path + "groups" + group_id + "item_list"
-        if path not in self._reg:
-            return []
-        return self._reg[path]
+        return self._get(RegistryPath("groups") + group_id + "item_list", [])
 
     def group_list(self):
-        path = self._path + "group_list"
-        if path not in self._reg:
-            return []
-        return self._reg[path]
+        return self._get("group_list", [])
 
     def rebuild_linear_index(self):
         item_list_path  = self._path + "item_list"

@@ -2,6 +2,7 @@
 
 from ..json_registry import RegistryPath
 from .annotations import _instantiate_annotation, _reinstantiate_annotation
+from ..json_registry import JsonRegistryNode
 
 
 class _Iterator:
@@ -19,11 +20,10 @@ class _Iterator:
         return value
 
 
-class _Annotations:
+class _Annotations(JsonRegistryNode):
     def __init__(self, props):
+        super().__init__(props._reg, RegistryPath("annotations"))
         self._props = props
-        self._reg = props._reg
-        self._path = RegistryPath("annotations")
         self._new_item_counter = 0
 
     def __contains__(self, id):

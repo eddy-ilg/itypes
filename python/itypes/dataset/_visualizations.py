@@ -5,6 +5,7 @@ from .visualizations.registry import _instantiate_visualization, _reinstantiate_
 from ..type import is_list
 from ..utils import align_tabs
 from ..grid2d import Grid2D
+from ._node import _DatasetNode
 
 class _Iterator:
     def __init__(self, viz):
@@ -21,7 +22,7 @@ class _Iterator:
         return value
     
 
-class _Visualizations:
+class _Visualizations(_DatasetNode):
     class _Row:
         def __init__(self, visualizations, row_idx):
             self._visualizations = visualizations
@@ -91,9 +92,7 @@ class _Visualizations:
             return viz
 
     def __init__(self, ds):
-        self._ds = ds
-        self._reg = ds._reg
-        self._path = RegistryPath("visualizations")
+        super().__init__(ds, RegistryPath("visualizations"))
         self._current_col = 0
         self._current_row = 0
 
@@ -144,11 +143,8 @@ class _Visualizations:
                 new_var.copy_from(old_var, mode=mode)
 
     def indices(self):
-        path = self._path
-        if path not in self._reg:
-            return []
         indices = []
-        for value in list(self._reg[path].values()):
+        for value in list(self._values()):
             indices.append(value['index'])
         return indices
 
@@ -166,10 +162,7 @@ class _Visualizations:
         return id
 
     def ids(self):
-        path = self._path
-        if path not in self._reg:
-            return []
-        return list(self._reg[path].keys())
+        return self._keys()
 
     def __contains__(self, id):
         if is_list(id):
@@ -179,7 +172,7 @@ class _Visualizations:
 
     def __getitem__(self, id):
         if is_list(id):
-            if self._path not in self._reg:
+            if not self._exists():
                 raise Exception(f"visualization \"{id}\" not found")
             for key, value in self._reg[self._path].items():
                 if value['index'] == id:
@@ -203,7 +196,7 @@ class _Visualizations:
 
     def remove(self, id):
         if is_list(id):
-            for key, value in self._reg[self._path].items():
+            for key, value in self._items():
                 if value['index'] == id:
                     self._reg.remove(self._path + key)
             raise Exception(f"visualization \"{id} not found")

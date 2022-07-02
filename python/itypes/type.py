@@ -6,6 +6,22 @@ from numpy import float32
 from numpy import float64
 from numpy import bool
 
+class FAIL:
+    pass
+
+class FormattedFloat(float):
+    def __new__(self, value, precision):
+        return super().__new__(self, value)
+
+    def precision(self):
+        return self._precision
+
+    def __init__(self, value, precision):
+        super().__init__()
+        self._precision = precision
+
+    def __str__(self):
+        return f'{self:.{self._precision}f}'
 
 def addr(x):
     if x is None:

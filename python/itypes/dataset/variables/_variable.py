@@ -3,6 +3,7 @@
 from ...filesystem import File
 from .._value import _Value
 from ...utils import align_tabs
+from .._node import _DatasetNode
 
 
 class _Iterator:
@@ -34,12 +35,7 @@ class _Iterator:
         return value
 
 
-class _Variable:
-    def __init__(self, ds, path):
-        self._ds = ds
-        self._reg = ds._reg
-        self._path = path
-
+class _Variable(_DatasetNode):
     def __getitem__(self, index):
         group_id, item_id = index
 
@@ -64,7 +60,9 @@ class _Variable:
         str = ""
         str += prefix + f"{self.id()+':'}\ttype={self.type():10s}\n"
         for value in self:
-            str += prefix + indent + f"{value.group_id()}/{value.item_id()} -> {value.file()}\n"
+            if value.is_scalar(): data = value.data()
+            else: data=value.file()
+            str += prefix + indent + f"{value.group_id()}/{value.item_id()} -> {data}\n"
         return str
 
     def str(self, prefix="", indent="  "):
@@ -112,22 +110,5 @@ class _Variable:
             return None
         return self._reg[path]
 
-    def extension(self):
-        raise NotImplementedError
-
-    def read(self, file, **kwargs):
-        if file is None:
-            return None
-        file = File(file)
-        return file.read(**kwargs)
-
-    def write(self, file, data, **kwargs):
-        if file is None:
-            raise Exception(f"write() needs a file")
-        if data is None:
-            return
-        if file.extension() == "json" and hasattr(data, "to_dict"):
-            data = data.to_dict()
-        file = File(file)
-        file.write(data, **kwargs)
-        return self
+    def is_scalar(self):
+        return True

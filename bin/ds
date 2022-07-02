@@ -5,57 +5,81 @@ import sys
 import argparse
 from itypes import Dataset, Path
 
-
-parser = argparse.ArgumentParser(description='Dataset tool')
-
-subparsers = parser.add_subparsers(dest='command')
-
-concat_parser = subparsers.add_parser("concat")
-concat_parser.add_argument("--discover", action="store_true", help="Search subdirectories for datasets")
-concat_parser.add_argument("dataset", nargs="*")
-concat_parser.add_argument("--out", required=True, type=str, help="Output dataset")
-
-print_parser = subparsers.add_parser("print")
-print_parser.add_argument("dataset")
-
-args = parser.parse_args()
-
 def discover_datasets(path):
     path = Path(path)
-
-    datasets = path.search_files("data.json")
-    return datasets
+    return path.search_files("data.json")
 
 def error(msg):
     sys.stderr.write('ERROR: ' + msg + "\n")
     sys.stderr.flush()
     sys.exit(-1)
 
-if args.command == "concat":
-    datasets = args.dataset
-    if args.discover:
-        datasets += discover_datasets(os.getcwd())
+parser = argparse.ArgumentParser(description='Dataset tool')
+subparsers = parser.add_subparsers(dest='command')
+commands = {}
 
-    if len(datasets) is None:
-        error("No input datasets")
 
-    print('Working on datasets:')
-    for dataset in datasets:
-        print(dataset)
+class _Command:
+    def __init__(self, name):
+        self._name = name
+        self._parser = subparsers.add_parser(name)
+        self.configure_args()
+        global commands
+        commands[name] = self
 
-    out_ds = dataset(args.out)
-    for index, dataset in enumerate(datasets):
-        ds = dataset(dataset).read()
-        out_ds.grid = ds.grid
 
-        for scene in ds.data:
-            out_scene = out_ds.data.scene('%04d-%s' % (index, scene.name()))
-            for frame in scene:
-                out_scene.add(frame)
+class _PrintCommand(_Command):
+    def __init__(self):
+        super().__init__("print")
 
-    out_ds.write()
-elif args.command == "print":
-    ds = Dataset(args.dataset).read()
-    print(ds, end='')
-else:
-    error(f"Unknown command type {args.command}")
+    def configure_args(self):
+        self._parser.add_argument("dataset")
+
+    def run(self, args):
+        ds = Dataset(args.dataset).read()
+        print(ds, end='')
+
+_PrintCommand()
+
+
+class _ConcatCommand(_Command):
+    def __init__(self):
+        super().__init__("concat")
+
+    def configure_args(self):
+        self._parser.add_argument("--discover", action="store_true", help="Search subdirectories for datasets")
+        self._parser.add_argument("dataset", nargs="*")
+        self._parser.add_argument("--out", required=True, type=str, help="Output dataset")
+        self._parser.add_argument("--structured", action="store_true", help="Structured output")
+
+    def run(self, args):
+        datasets = args.dataset
+        if args.discover:
+            datasets += discover_datasets(os.getcwd())
+
+        if len(datasets) is None:
+            error("No input datasets")
+
+        print('Working on datasets:')
+        for dataset in datasets:
+            print(dataset)
+
+        out_ds = Dataset(args.out, structured=args.structured)
+        for index, dataset in enumerate(datasets):
+            ds = Dataset(dataset).read()
+
+
+            out_ds.grid = ds.grid
+
+            for scene in ds.data:
+                out_scene = out_ds.data.scene('%04d-%s' % (index, scene.name()))
+                for frame in scene:
+                    out_scene.add(frame)
+
+        out_ds.write()
+
+_ConcatCommand()
+
+
+args = parser.parse_args()
+commands[args.command].run(args)

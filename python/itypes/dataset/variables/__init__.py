@@ -7,3 +7,4 @@ from .flow import _FlowVariable
 from .image import _ImageVariable
 from .text import _TextVariable
 from .props import _PropertiesVariable
+from .float_scalar import _FloatScalarVariable

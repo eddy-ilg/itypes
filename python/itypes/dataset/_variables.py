@@ -3,6 +3,7 @@
 from ..json_registry import RegistryPath
 from .variables import _instantiate_variable
 from ..utils import align_tabs
+from ._node import _DatasetNode
 
 
 class _Iterator:
@@ -20,11 +21,9 @@ class _Iterator:
         return value
 
 
-class _Variables:
+class _Variables(_DatasetNode):
     def __init__(self, ds):
-        self._ds = ds
-        self._reg = ds._reg
-        self._path = RegistryPath("variables")
+        super().__init__(ds, RegistryPath("variables"))
 
     def __contains__(self, id):
         return self._path.append(id) in self._reg
@@ -44,10 +43,7 @@ class _Variables:
         return _Iterator(self)
 
     def ids(self):
-        path = self._path
-        if path not in self._reg:
-            return []
-        return list(self._reg[path].keys())
+        return self._keys()
 
     def remove(self, id):
         for viz in self._ds.viz:

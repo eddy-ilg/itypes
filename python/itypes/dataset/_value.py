@@ -2,14 +2,10 @@
 
 from itypes import Path
 from ..filesystem import File
+from ._node import _DatasetNode
 
 
-class _Value:
-    def __init__(self, ds, path):
-        self._ds = ds
-        self._reg = ds._reg
-        self._path = path
-
+class _Value(_DatasetNode):
     def variable_id(self):
         path = self._path + ".." + ".." + ".."
         return str(path[-1])
@@ -63,26 +59,35 @@ class _Value:
             return
 
         variable = self.variable()
-        if extension is None:
-            extension = variable.extension()
 
-        if self._ds._structured_output:
-            file = Path(self.group_id()).cd(self.item_id()).file(f"{self.variable_id()}.{extension}")
+        if variable.is_scalar():
+            self._reg[self._path + "value"] = data
         else:
-            linear_format = self._ds._linear_format
-            linear_index = len(self._ds) - 1
-            if "{var}" not in linear_format:
-                raise Exception("linear_format needs to contain '{var}'")
-            filename = (linear_format % linear_index).replace("{var}", self.variable_id()) + '.' + extension
-            file = File(filename)
+            if extension is None:
+                extension = variable.extension()
 
-        abs_file = (self._ds.base_path() + file.path()).abs().file(file.name())
-        variable.write(abs_file, data, **kwargs)
-        self._reg[self._path + "path"] = str(file) if not self._ds._abs_paths else str(abs_file)
+            if self._ds._structured_output:
+                file = Path(self.group_id()).cd(self.item_id()).file(f"{self.variable_id()}.{extension}")
+            else:
+                linear_format = self._ds._linear_format
+                linear_index = len(self._ds) - 1
+                if "{var}" not in linear_format:
+                    raise Exception("linear_format needs to contain '{var}'")
+                if '%' in linear_format: indexed = linear_format % linear_index
+                else:                    indexed = linear_format
+                filename = indexed.replace("{var}", self.variable_id()) + '.' + extension
+                file = File(filename)
+
+            abs_file = (self._ds.base_path() + file.path()).abs().file(file.name())
+            variable.write(abs_file, data, **kwargs)
+            self._reg[self._path + "path"] = str(file) if not self._ds._abs_paths else str(abs_file)
 
         self._ds._do_auto_write()
 
         return self
+
+    def is_scalar(self):
+        return self.variable().is_scalar()
 
     def file(self):
         if self._path + "path" not in self._reg:
@@ -95,8 +100,14 @@ class _Value:
         return file
 
     def data(self, **kwargs):
-        file = self.file()
-        if file is None:
+        variable = self.variable()
+        if variable.is_scalar():
+            if self._path + "value" in self._reg:
+                return self._reg[self._path + "value"]
             return None
-        file = File(file)
-        return self.variable().read(file, **kwargs)
+        else:
+            file = self.file()
+            if file is None:
+                return None
+            file = File(file)
+            return self.variable().read(file, **kwargs)

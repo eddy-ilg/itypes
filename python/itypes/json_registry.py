@@ -2,9 +2,49 @@
 
 from .filesystem import File
 from copy import deepcopy
+from .type import FAIL
 
 MAX_INT = 2**16 - 1
 
+class JsonRegistryNode:
+    def __init__(self, reg, path):
+        self._reg = reg
+        self._path = path
+
+    def _get(self, key, default=None):
+        if self._path + key in self._reg:
+            return self._reg[self._path + key]
+        if default is FAIL:
+            raise Exception(f"cannot access JSON registry key {self._path + key}")
+        return default
+
+    def _set(self, key, value):
+        self._reg[self._path + key] = value
+
+    def _exists(self):
+        return self._path in self._reg
+
+    def _remove(self, key):
+        if self._path + key in self._reg:
+            del self._reg[self._path + key]
+
+    def _keys(self):
+        if not self._exists(): return []
+        return list(self._reg[self._path].keys())
+
+    def _values(self):
+        if not self._exists(): return []
+        return list(self._reg[self._path].values())
+
+    def _items(self):
+        if not self._exists():
+            return []
+        return self._reg[self._path].items()
+
+    def _dict(self):
+        if not self._exists():
+            return {}
+        return deepcopy(self._reg[self._path])
 
 class RegistryPath:
     def __init__(self, *args):

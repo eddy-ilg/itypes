@@ -30,6 +30,7 @@ from .type import is_str
 from .type import is_function
 from .type import bind_to_instance
 from .type import clamp
+from .type import FormattedFloat
 
 from .conversion import convert_dims
 from .conversion import convert_dtype

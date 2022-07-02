@@ -2,6 +2,7 @@
 
 from ._item import _Item
 from ..utils import align_tabs
+from ._node import _DatasetNode
 
 
 class _Iterator:
@@ -19,11 +20,9 @@ class _Iterator:
         return value
 
 
-class _Group:
+class _Group(_DatasetNode):
     def __init__(self, ds, path, label=None):
-        self._ds = ds
-        self._reg = ds._reg
-        self._path = path
+        super().__init__(ds, path)
 
         exists = self._path in self._reg
         if not exists:
@@ -46,10 +45,7 @@ class _Group:
         return self._path[-1]
 
     def label(self):
-        path = self._path + "label"
-        if path in self._reg:
-            return self._reg[path]
-        return None
+        return self._get("label")
 
     def item_ids(self):
         path = self._path + "items"

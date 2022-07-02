@@ -4,6 +4,7 @@
 
 from .registry import register_annotation
 from ...type import is_str, is_list, is_number
+from ...json_registry import JsonRegistryNode
 
 _line_styles = {
      'solid':                 None,
@@ -29,21 +30,12 @@ _line_styles = {
      'densely dashdotdotted': (3, 1, 1, 1, 1, 1)
 }
 
-class _Annotation:
+class _Annotation(JsonRegistryNode):
     def __init__(self, type, props, path):
-        self._reg = props._reg
+        super().__init__(props._reg, path)
         self._props = props
-        self._path = path
 
         self._set("type", type)
-
-    def _set(self, key, value):
-        self._reg[self._path + key] = value
-
-    def _get(self, key, default=None):
-        if self._path + key not in self._reg:
-            return default
-        return self._reg[self._path + key]
 
     def set_color(self, color):
         if is_str(color):

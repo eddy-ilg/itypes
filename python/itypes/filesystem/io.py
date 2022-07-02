@@ -250,7 +250,7 @@ register_write_function(('np', 'npy'), write_numpy)
 
 def read_numpy_compressed(filename):
     f = _open_file_for_reading(filename)
-    return np.load(f, allow_pickle=True)
+    return np.load(f, allow_pickle=True)['arr_0']
 
 register_read_function('npz', read_numpy_compressed)
 

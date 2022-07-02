@@ -39,9 +39,7 @@ class _SingleVariableVisualization(_Visualization):
         return self._get("var")
 
     def params(self):
-        if self._path not in self._reg:
-            return {}
-        return deepcopy(self._reg[self._path])
+        return self._dict()
 
     def variable_ids(self):
         return [self._get("var")]

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from ..utils import align_tabs
+from ._node import _DatasetNode
 
 
 class _Iterator:
@@ -18,11 +19,9 @@ class _Iterator:
         return value
 
 
-class _Item:
+class _Item(_DatasetNode):
     def __init__(self, ds, path, label=None):
-        self._ds = ds
-        self._reg = ds._reg
-        self._path = path
+        super().__init__(ds, path)
 
         self._item_id = self._path[-1]
         self._group_id = self._path[-3]
@@ -48,10 +47,7 @@ class _Item:
         return self._group_label
 
     def label(self):
-        path = self._path + "label"
-        if path in self._reg:
-            return self._reg[path]
-        return None
+        return self._get("label")
 
     def __enter__(self):
         return self

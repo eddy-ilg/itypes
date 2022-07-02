@@ -2,23 +2,15 @@
 
 from copy import copy
 from ...utils import align_tabs
+from .._node import _DatasetNode
 
 
-class _Visualization:
+class _Visualization(_DatasetNode):
     def __init__(self, ds, base_path=None, path=None):
-        self._ds = ds
-        self._reg = ds._reg
+        super().__init__(ds, path)
+
         self._base_path = base_path
-        self._path = path
         self._id = path[-1] if path is not None else None
-
-    def _set(self, key, value):
-        self._reg[self._path + key] = value
-
-    def _get(self, key):
-        if self._path + key not in self._reg:
-            return None
-        return self._reg[self._path + key]
 
     def id(self):
         return self._id
