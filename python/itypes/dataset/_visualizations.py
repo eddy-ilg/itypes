@@ -7,6 +7,7 @@ from ..utils import align_tabs
 from ..grid2d import Grid2D
 from ._node import _DatasetNode
 from ..log import log as logger
+from itypes import Struct 
 
 
 class _Iterator:
@@ -253,3 +254,31 @@ class _Visualizations(_DatasetNode):
             del self[id]
 
         return True
+    
+    def dimensions(self):
+        s = Struct() 
+        if len(self.ids()) == 0:
+            s.min_row = 0
+            s.max_row = 0
+            s.min_col = 0
+            s.max_col = 0
+            s.cols = 0
+            s.row = 0
+            return s 
+
+        s.min_row = 10000
+        s.max_row = -10000
+        s.min_col = 10000
+        s.max_col = -10000
+
+        for viz in self: 
+            col, row = viz.index() 
+            if col < s.min_col: s.min_col = col 
+            if col > s.max_col: s.max_col = col
+            if row < s.min_row: s.min_row = row
+            if row > s.max_row: s.max_row = row
+
+        s.cols = s.max_col - s.min_col + 1
+        s.rows = s.max_row - s.min_row + 1
+
+        return s

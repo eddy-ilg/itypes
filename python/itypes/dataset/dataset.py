@@ -33,27 +33,29 @@ class Dataset:
                  file=None,
                  abs_paths=False,
                  auto_write=False,
-                 structured_output=True,
+                 structured=True,
                  single_item=False,
                  linear_format="%08d-{var}"):
 
         self._reg = JsonRegistry(file)
         self._abs_paths = abs_paths
         self._auto_write = auto_write
-        self._structured_output = structured_output
+        self._structured = structured
         self._linear_format = linear_format
         self._single_item = single_item
         self.viz = _Visualizations(self)
         self.var = _Variables(self)
         self.seq = _Sequence(self)
         self.met = _Metrics(self)
-        self._file = File(file) if file is not None else None
+        self._file = self._make_file(file) if file is not None else None
 
         self._single_item = single_item
         if single_item:
-            self._structured_output = False
+            self._structured = False
             self._linear_format = "{var}"
             self._single_item_value = self.seq.group().item()
+
+        self._merge_index = [0, 0]
 
     def _do_auto_write(self):
         if self._auto_write:
@@ -71,13 +73,17 @@ class Dataset:
         return self._reg.to_dict()
 
     def _make_file(self, file):
-        if Path(file.str()).is_dir():
-            config_file = Path(file.str()).file('data.gridseq')
+        if Path(str(file)).is_dir():
+            config_file = Path(str(file)).file('data.gridseq')
             if config_file.exists():
                 return config_file
-            config_file = Path(file.str()).file('data.json')
+            config_file = Path(str(file)).file('data.json')
             return config_file
-        return File(file)
+        org_file = file
+        file = File(file)
+        if file.extension() not in ["json", "gridseq"]:
+            file = Path(str(org_file)).file("data.json")
+        return file
 
     def write(self, file=None):
         if file is None:
@@ -153,10 +159,21 @@ class Dataset:
             str += self.seq._str(prefix=prefix + indent, indent=indent)
         return str
 
-    def merge(self, other, mode="ref", placement="bottom"):
+    def merge(self, other, mode="ref", include_label=False):
+        other_dims = other.viz.dimensions()
+        col, row = self._merge_index
+
         if len(self) == 0:
-            self.copy_from(other, mode=mode)
-            return
+            self.seq.copy_from(other.seq)
+
+        if include_label:
+            self.viz.create(
+                type="text",
+                text="<h2>" + str(other.file())+":" + "</h2>",
+                index=(col, row),
+                colspan=other_dims.cols
+            )
+            row += 1
 
         # Copy variables
         var_mapping = {}
@@ -171,16 +188,7 @@ class Dataset:
             self.var.create(type=var.type(), id=new_id)
             self.var[new_id].copy_from(var, mode=mode)
 
-        # Copy visualizations to bottom
-        if placement == "bottom":
-            max_row = 0
-            for viz in self.viz:
-                max_row = max(max_row, viz.index()[1])
-        elif placement == "right":
-            max_col = 0
-            for viz in self.viz:
-                max_col = max(max_col, viz.index()[0])
-
+        # Copy visualizaitons
         for viz in other.viz:
             new_id = viz.id()
             idx = 0
@@ -189,15 +197,20 @@ class Dataset:
                 new_id = f"%d_{viz.id()}" % idx
 
             params = viz.params()
-            if placement == "bottom":
-                params["index"][1] += max_row + 1
-            else:
-                params["index"][0] += max_col + 1
+            params["index"][1] += row
+            params["index"][0] += col
             self.viz.create(**params, id=new_id)
             self.viz[new_id].change_vars(var_mapping)
 
+        # Copy metrics
         for met in other.met:
             self.met[met.id()].change_vars(var_mapping)
+
+        self._merge_index[0] += other_dims.cols
+
+    def new_merge_row(self):
+        dims = self.viz.dimensions()
+        self._merge_index = [0, dims.max_row + 1]
 
     def copy_from(self, other, mode="ref"):
         self.viz.copy_from(other.viz)
@@ -229,3 +242,15 @@ class Dataset:
         if not self.seq.sanitize(log=log):
             return False
         return True
+
+    def concat(self, other, mode="ref"):
+        for other_group in other.seq:
+            group = self.seq.group(self.seq.new_group_id(other_group.id()), other_group.label())
+            for other_item in other_group:
+                item = group.item(group.new_item_id(other_item.id()), other_item.label())
+                for other_value in other_item:
+                    var_id = other_value.variable_id()
+                    if var_id not in self.var:
+                        continue
+                    item[var_id].copy_from(other_value, mode=mode)
+

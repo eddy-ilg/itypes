@@ -7,7 +7,7 @@
 from itypes import Dataset, Properties
 
 # Create dataset
-ds = Dataset(file='out_annotations/data.json', auto_write=True, structured_output=False)
+ds = Dataset(file='out_annotations/data.json', auto_write=True, structured=False)
 
 # Create visualization
 with ds.viz.new_row() as row:

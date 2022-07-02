@@ -120,7 +120,7 @@ class _Metric(_DatasetNode):
                 value_var = self.value_var()
                 if value_var is None:
                     raise Exception(f"_Metric is missing \"value_var\" parameter")
-                value_var[item.group_id(), item.id()].set_data(result.error())
+                value_var[item.group_id(), item.id()].set_data(float(result.error()))
 
             if save_maps: 
                 map_var = self.map_var()

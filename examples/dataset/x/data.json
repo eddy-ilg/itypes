@@ -1,0 +1,434 @@
+{
+    "sequence": {
+        "group_list": [
+            {
+                "index": 0,
+                "id": "scene_001",
+                "label": "Scene 1"
+            },
+            {
+                "index": 2,
+                "id": "scene_002",
+                "label": "Scene 2"
+            }
+        ],
+        "groups": {
+            "scene_001": {
+                "label": "Scene 1",
+                "item_list": [
+                    {
+                        "index": 0,
+                        "id": "item_001",
+                        "label": "Item 1"
+                    },
+                    {
+                        "index": 1,
+                        "id": "item_002",
+                        "label": "Item 2"
+                    }
+                ],
+                "items": {
+                    "item_001": {
+                        "label": "Item 1",
+                        "index": 0
+                    },
+                    "item_002": {
+                        "label": "Item 2",
+                        "index": 1
+                    }
+                }
+            },
+            "scene_002": {
+                "label": "Scene 2",
+                "item_list": [
+                    {
+                        "index": 2,
+                        "id": "item_001",
+                        "label": "Item 1"
+                    }
+                ],
+                "items": {
+                    "item_001": {
+                        "label": "Item 1",
+                        "index": 2
+                    }
+                }
+            }
+        },
+        "item_list": [
+            {
+                "index": 0,
+                "group_id": "scene_001",
+                "group_label": "Scene 1",
+                "item_id": "item_001",
+                "item_label": "Item 1"
+            },
+            {
+                "index": 1,
+                "group_id": "scene_001",
+                "group_label": "Scene 1",
+                "item_id": "item_002",
+                "item_label": "Item 2"
+            },
+            {
+                "index": 2,
+                "group_id": "scene_002",
+                "group_label": "Scene 2",
+                "item_id": "item_001",
+                "item_label": "Item 1"
+            }
+        ]
+    },
+    "variables": {
+        "image0": {
+            "type": "image",
+            "values": {
+                "scene_001": {
+                    "item_001": {
+                        "path": "scene_001/item_001/image0.png"
+                    },
+                    "item_002": {
+                        "path": "scene_001/item_002/image0.png"
+                    }
+                },
+                "scene_002": {
+                    "item_001": {
+                        "path": "scene_002/item_001/image0.png"
+                    }
+                }
+            }
+        },
+        "image1": {
+            "type": "image",
+            "values": {
+                "scene_001": {
+                    "item_001": {
+                        "path": "scene_001/item_001/image1.png"
+                    },
+                    "item_002": {
+                        "path": "scene_001/item_002/image1.png"
+                    }
+                },
+                "scene_002": {
+                    "item_001": {
+                        "path": "scene_002/item_001/image1.png"
+                    }
+                }
+            }
+        },
+        "flow": {
+            "type": "flow",
+            "values": {
+                "scene_001": {
+                    "item_001": {
+                        "path": "scene_001/item_001/flow.flo"
+                    },
+                    "item_002": {
+                        "path": "scene_001/item_002/flow.flo"
+                    }
+                },
+                "scene_002": {
+                    "item_001": {
+                        "path": "scene_002/item_001/flow.flo"
+                    }
+                }
+            }
+        },
+        "occ": {
+            "type": "image",
+            "values": {
+                "scene_001": {
+                    "item_001": {
+                        "path": "scene_001/item_001/occ.png"
+                    },
+                    "item_002": {
+                        "path": "scene_001/item_002/occ.png"
+                    }
+                },
+                "scene_002": {
+                    "item_001": {
+                        "path": "scene_002/item_001/occ.png"
+                    }
+                }
+            }
+        },
+        "EPE.errors": {
+            "type": "float-scalar",
+            "values": {
+                "scene_001": {
+                    "item_001": {
+                        "value": 0.0
+                    },
+                    "item_002": {
+                        "value": 0.0
+                    }
+                },
+                "scene_002": {
+                    "item_001": {
+                        "value": 0.0
+                    }
+                }
+            }
+        },
+        "EPE.maps": {
+            "type": "float",
+            "values": {
+                "scene_001": {
+                    "item_001": {
+                        "path": "scene_001/item_001/EPE.maps.npz"
+                    },
+                    "item_002": {
+                        "path": "scene_001/item_002/EPE.maps.npz"
+                    }
+                },
+                "scene_002": {
+                    "item_001": {
+                        "path": "scene_002/item_001/EPE.maps.npz"
+                    }
+                }
+            }
+        },
+        "1_image0": {
+            "type": "image",
+            "values": {
+                "scene_001": {
+                    "item_001": {
+                        "path": "scene_001/item_001/1_image0.png"
+                    },
+                    "item_002": {
+                        "path": "scene_001/item_002/1_image0.png"
+                    }
+                },
+                "scene_002": {
+                    "item_001": {
+                        "path": "scene_002/item_001/1_image0.png"
+                    }
+                }
+            }
+        },
+        "1_image1": {
+            "type": "image",
+            "values": {
+                "scene_001": {
+                    "item_001": {
+                        "path": "scene_001/item_001/1_image1.png"
+                    },
+                    "item_002": {
+                        "path": "scene_001/item_002/1_image1.png"
+                    }
+                },
+                "scene_002": {
+                    "item_001": {
+                        "path": "scene_002/item_001/1_image1.png"
+                    }
+                }
+            }
+        },
+        "1_flow": {
+            "type": "flow",
+            "values": {
+                "scene_001": {
+                    "item_001": {
+                        "path": "scene_001/item_001/1_flow.flo"
+                    },
+                    "item_002": {
+                        "path": "scene_001/item_002/1_flow.flo"
+                    }
+                },
+                "scene_002": {
+                    "item_001": {
+                        "path": "scene_002/item_001/1_flow.flo"
+                    }
+                }
+            }
+        },
+        "1_occ": {
+            "type": "image",
+            "values": {
+                "scene_001": {
+                    "item_001": {
+                        "path": "scene_001/item_001/1_occ.png"
+                    },
+                    "item_002": {
+                        "path": "scene_001/item_002/1_occ.png"
+                    }
+                },
+                "scene_002": {
+                    "item_001": {
+                        "path": "scene_002/item_001/1_occ.png"
+                    }
+                }
+            }
+        },
+        "2_image0": {
+            "type": "image",
+            "values": {
+                "scene_001": {
+                    "item_001": {
+                        "path": "scene_001/item_001/2_image0.png"
+                    },
+                    "item_002": {
+                        "path": "scene_001/item_002/2_image0.png"
+                    }
+                },
+                "scene_002": {
+                    "item_001": {
+                        "path": "scene_002/item_001/2_image0.png"
+                    }
+                }
+            }
+        },
+        "2_image1": {
+            "type": "image",
+            "values": {
+                "scene_001": {
+                    "item_001": {
+                        "path": "scene_001/item_001/2_image1.png"
+                    },
+                    "item_002": {
+                        "path": "scene_001/item_002/2_image1.png"
+                    }
+                },
+                "scene_002": {
+                    "item_001": {
+                        "path": "scene_002/item_001/2_image1.png"
+                    }
+                }
+            }
+        },
+        "2_flow": {
+            "type": "flow",
+            "values": {
+                "scene_001": {
+                    "item_001": {
+                        "path": "scene_001/item_001/2_flow.flo"
+                    },
+                    "item_002": {
+                        "path": "scene_001/item_002/2_flow.flo"
+                    }
+                },
+                "scene_002": {
+                    "item_001": {
+                        "path": "scene_002/item_001/2_flow.flo"
+                    }
+                }
+            }
+        },
+        "2_occ": {
+            "type": "image",
+            "values": {
+                "scene_001": {
+                    "item_001": {
+                        "path": "scene_001/item_001/2_occ.png"
+                    },
+                    "item_002": {
+                        "path": "scene_001/item_002/2_occ.png"
+                    }
+                },
+                "scene_002": {
+                    "item_001": {
+                        "path": "scene_002/item_001/2_occ.png"
+                    }
+                }
+            }
+        }
+    },
+    "visualizations": {
+        "image0": {
+            "type": "image",
+            "var": "image0",
+            "index": [
+                0,
+                0
+            ]
+        },
+        "image1": {
+            "type": "image",
+            "var": "image1",
+            "index": [
+                1,
+                0
+            ]
+        },
+        "flow": {
+            "type": "flow",
+            "var": "flow",
+            "index": [
+                2,
+                0
+            ]
+        },
+        "occ": {
+            "type": "image",
+            "var": "occ",
+            "index": [
+                2,
+                1
+            ]
+        },
+        "1_image0": {
+            "type": "image",
+            "var": "1_image0",
+            "index": [
+                3,
+                0
+            ]
+        },
+        "1_image1": {
+            "type": "image",
+            "var": "1_image1",
+            "index": [
+                4,
+                0
+            ]
+        },
+        "1_flow": {
+            "type": "flow",
+            "var": "1_flow",
+            "index": [
+                5,
+                0
+            ]
+        },
+        "1_occ": {
+            "type": "image",
+            "var": "1_occ",
+            "index": [
+                5,
+                1
+            ]
+        },
+        "2_image0": {
+            "type": "image",
+            "var": "2_image0",
+            "index": [
+                0,
+                2
+            ]
+        },
+        "2_image1": {
+            "type": "image",
+            "var": "2_image1",
+            "index": [
+                1,
+                2
+            ]
+        },
+        "2_flow": {
+            "type": "flow",
+            "var": "2_flow",
+            "index": [
+                2,
+                2
+            ]
+        },
+        "2_occ": {
+            "type": "image",
+            "var": "2_occ",
+            "index": [
+                2,
+                3
+            ]
+        }
+    }
+}

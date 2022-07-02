@@ -5,7 +5,8 @@ import sys
 import argparse
 from itypes import Dataset, Path, log
 
-def discover_datasets(path):
+def discover_datasets(path=None):
+    if path is None: path = Path('.')
     path = Path(path)
     return path.search_files("data.json")
 
@@ -289,45 +290,81 @@ class _ItemCommand(_Command):
 _ItemCommand()
 
 
-
-
-class _ConcatCommand(_Command):
+#
+# --- ds recreate
+#
+class _ItemCommand(_Command):
     def __init__(self):
-        super().__init__("concat")
+        super().__init__("recreate")
 
     def _configure_parser(self):
-#        parser.add_argument("--discover", action="store_true", help="Search subdirectories for datasets")
-
-        self._parser.add_argument("--out", required=True, type=str, help="Output dataset")
-        self._parser.add_argument("--structured", action="store_true", help="Structured output")
+        self._parser.add_argument("--structured", action="store_true", help="Whether to recreate in structured output mode")
+        self._parser.add_argument("out", help="Path to output dataset")
 
     def _run(self, args):
-        datasets = args.dataset
-        if args.discover:
-            datasets += discover_datasets(os.getcwd())
-
-        if len(datasets) is None:
-            error("No input datasets")
-
-        print('Working on datasets:')
-        for dataset in datasets:
-            print(dataset)
+        ds = self.dataset()
 
         out_ds = Dataset(args.out, structured=args.structured)
-        for index, dataset in enumerate(datasets):
-            ds = Dataset(dataset).read()
+        out_ds.copy_from(ds, mode="copy")
+        out_ds.write()
+
+_ItemCommand()
 
 
-            out_ds.grid = ds.grid
+#
+# --- ds cat
+#
+class _CatCommand(_Command):
+    def __init__(self):
+        super().__init__("cat")
 
-            for scene in ds.data:
-                out_scene = out_ds.data.scene('%04d-%s' % (index, scene.name()))
-                for frame in scene:
-                    out_scene.add(frame)
+    def _configure_parser(self):
+        self._parser.add_argument("input", nargs='*', help="Path to input dataset")
+        self._parser.add_argument("--discover", action='store_true', help="Search for datasets starting from current directory")
+        self._parser.add_argument("--copy", action="store_true", help="Copy files instead of referencing")
+        self._parser.add_argument("--structured", action="store_true", help="Whether to recreate in structured output mode")
+
+    def _run(self, args):
+        if args.discover:
+            args.input += discover_datasets()
+
+        out_ds = Dataset(self._args.dataset, structured=args.structured)
+        out_ds.copy_from(Dataset(args.input[0]).read())
+
+        for path in args.input[1:]:
+            out_ds.concat(Dataset(path).read(), mode="copy" if args.copy else "ref")
 
         out_ds.write()
 
-_ConcatCommand()
+_CatCommand()
+
+
+#
+# --- ds merge
+#
+class _MergeCommand(_Command):
+    def __init__(self):
+        super().__init__("merge")
+
+    def _configure_parser(self):
+        self._parser.add_argument("input", nargs='*', help="Path to input dataset")
+        self._parser.add_argument("--copy", action="store_true", help="Copy files instead of referencing")
+        self._parser.add_argument("--no-labels", action="store_true", help="Don't place labels to indicate sources")
+        self._parser.add_argument("--structured", action="store_true", help="Whether to recreate in structured output mode")
+
+    def _run(self, args):
+        out_ds = Dataset(self._args.dataset, structured=args.structured)
+
+        for path in args.input:
+            if path == ",":
+                out_ds.new_merge_row()
+                continue
+            ds = Dataset(path).read()
+            out_ds.merge(ds, mode="copy" if args.copy else "ref", include_label=not args.no_labels)
+
+        out_ds.write()
+
+_MergeCommand()
 
 
 args = parser.parse_args()

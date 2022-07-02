@@ -115,6 +115,9 @@ class _Sequence(_DatasetNode):
     def full_item_list(self):
         return self._get("item_list", [])
 
+    def new_linear_index(self):
+        return len(self._get("item_list", []))
+
     def item_list(self, group_id):
         return self._get(RegistryPath("groups") + group_id + "item_list", [])
 
@@ -132,6 +135,7 @@ class _Sequence(_DatasetNode):
             group_item_list_path = group._path + "item_list"
             self._reg[group_item_list_path] = []
 
+        index = 0
         for group in self:
             self._append_group(
                 group.id(),
@@ -144,8 +148,18 @@ class _Sequence(_DatasetNode):
                     group.label(),
                     item.label()
                 )
+            item.set_linear_index(index)
+            index += 1
 
         self._needs_index_rebuild = False
+
+    def new_group_id(self, name):
+        new_name = name
+        index = 0
+        while new_name in self:
+            index += 1
+            new_name = f"{index}_{name}"
+        return new_name
 
     def flag_linear_index_as_dirty(self):
         if self._rebuild_index: self.rebuild_linear_index()

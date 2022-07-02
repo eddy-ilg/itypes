@@ -20,7 +20,7 @@ class _Iterator:
 
 
 class _Item(_DatasetNode):
-    def __init__(self, ds, path, label=None):
+    def __init__(self, ds, path, label=None, index=None):
         super().__init__(ds, path)
 
         self._item_id = self._path[-1]
@@ -32,11 +32,20 @@ class _Item(_DatasetNode):
             self._ds.seq._append_item(self._group_id, self._item_id, self._group_label, label)
 
         if label is not None:
-            self._reg[self._path + "label"] = label
+            self._set("label", label)
+
+        if index is not None:
+            self._set("index", index)
 
     def __iter__(self):
         return _Iterator(self)
-    
+
+    def linear_index(self):
+        return self._get("index")
+
+    def set_linear_index(self, index):
+        self._set("index", index)
+
     def id(self):
         return self._item_id
 

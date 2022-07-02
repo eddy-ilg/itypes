@@ -173,7 +173,7 @@ class JsonRegistry(dict):
     def write(self, file=None):
         if file is None:
             file = self._file
-        File(file).write(self)
+        File(file).write(self.to_dict())
         self._file = file
 
     def __getitem__(self, key):

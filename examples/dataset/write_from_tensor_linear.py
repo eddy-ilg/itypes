@@ -36,7 +36,7 @@ data = {
 }
 
 # Create dataset
-ds = Dataset(file='out_write_from_tensor_linear/data.json', auto_write=True, structured_output=False)
+ds = Dataset(file='out_write_from_tensor_linear/data.json', auto_write=True, structured=False)
 
 # First row: show images
 with ds.viz.new_row() as row:

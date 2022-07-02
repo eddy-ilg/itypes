@@ -64,7 +64,7 @@ class _Group(_DatasetNode):
         if label is None:
             label = id
         path = self._path + "items" + id
-        return _Item(self._ds, path, label)
+        return _Item(self._ds, path, label, self._ds.seq.new_linear_index())
 
     def remove(self, id, delete_files=False):
         if delete_files:
@@ -77,6 +77,14 @@ class _Group(_DatasetNode):
             del self._reg[self._path]
 
         self._ds.seq.flag_linear_index_as_dirty()
+
+    def new_item_id(self, name):
+        new_name = name
+        index = 0
+        while new_name in self:
+            index += 1
+            new_name = f"{index}_{name}"
+        return new_name
 
     def __delitem__(self, id):
         self.remove(id)

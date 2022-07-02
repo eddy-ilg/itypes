@@ -59,6 +59,7 @@ class _Value(_DatasetNode):
             return
 
         variable = self.variable()
+        item = self._ds.seq[self.group_id()][self.item_id()]
 
         if variable.is_scalar():
             self._reg[self._path + "value"] = data
@@ -66,11 +67,11 @@ class _Value(_DatasetNode):
             if extension is None:
                 extension = variable.extension()
 
-            if self._ds._structured_output:
+            if self._ds._structured:
                 file = Path(self.group_id()).cd(self.item_id()).file(f"{self.variable_id()}.{extension}")
             else:
                 linear_format = self._ds._linear_format
-                linear_index = len(self._ds) - 1
+                linear_index = item.linear_index()
                 if "{var}" not in linear_format:
                     raise Exception("linear_format needs to contain '{var}'")
                 if '%' in linear_format: indexed = linear_format % linear_index
