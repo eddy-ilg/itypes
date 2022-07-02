@@ -55,18 +55,36 @@ class _Variable(_DatasetNode):
         group_id, item_id = index
         self[group_id, item_id].copy_from(value)
 
-    def _str(self, prefix="", indent="  "):
+    def remove_item(self, index, delete_files=False):
+        if index in self and delete_files:
+            value = self[index]
+            value.delete_file()
+
+        group_id, item_id = index
+        path = self._path + "values" + group_id + item_id
+        del self._reg[path]
+
+    def __delitem__(self, index):
+        self.remove_item(index)
+
+    def _str(self, prefix="", indent="  ", show_res=False):
         indent = "  "
         str = ""
         str += prefix + f"{self.id()+':'}\ttype={self.type():10s}\n"
         for value in self:
             if value.is_scalar(): data = value.data()
             else: data=value.file()
-            str += prefix + indent + f"{value.group_id()}/{value.item_id()} -> {data}\n"
+            str += prefix + indent + f"{value.group_id()}/{value.item_id()} -> {data}"
+            if show_res:
+                if value.is_scalar():
+                    str += " (scalar)"
+                else:
+                    str += f" ({','.join(f'{x}' for x in value.data().shape)})"
+            str += "\n"
         return str
 
-    def str(self, prefix="", indent="  "):
-        return align_tabs(self._str(prefix, indent))
+    def str(self, prefix="", indent="  ", show_res=False):
+        return align_tabs(self._str(prefix, indent), show_res)
 
     def __str__(self):
         return self.str()

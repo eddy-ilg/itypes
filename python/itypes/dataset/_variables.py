@@ -4,6 +4,7 @@ from ..json_registry import RegistryPath
 from .variables import _instantiate_variable
 from ..utils import align_tabs
 from ._node import _DatasetNode
+from ..log import log as logger
 
 
 class _Iterator:
@@ -26,7 +27,7 @@ class _Variables(_DatasetNode):
         super().__init__(ds, RegistryPath("variables"))
 
     def __contains__(self, id):
-        return self._path.append(id) in self._reg
+        return self._path + id in self._reg
 
     def __getitem__(self, id):
         path = self._path + id
@@ -45,10 +46,10 @@ class _Variables(_DatasetNode):
     def ids(self):
         return self._keys()
 
-    def remove(self, id):
-        for viz in self._ds.viz:
-            if id in viz.variable_ids():
-                del self._ds.viz[viz.id()]
+    def remove(self, id, delete_files=False):
+        if delete_files:
+            for value in self[id]:
+                value.delete_file()
         self._reg.remove(self._path + id)
 
     def create(self, type, id):
@@ -64,13 +65,13 @@ class _Variables(_DatasetNode):
     def __str__(self):
         return self.str()
 
-    def str(self, prefix="", indent="  "):
-        return align_tabs(self._str(prefix, indent))
+    def str(self, prefix="", indent="  ", show_res=False):
+        return align_tabs(self._str(prefix, indent), show_res)
 
-    def _str(self, prefix="", indent="  "):
+    def _str(self, prefix="", indent="  ", show_res=False):
         str = ""
         for var in self:
-            str += var._str(prefix, indent)
+            str += var._str(prefix, indent, show_res)
         return str
 
     def __setitem__(self, id, var):
@@ -82,3 +83,77 @@ class _Variables(_DatasetNode):
             var = self.create(other_var.type(), other_var.id())
             if include_data:
                 var.copy_from(other_var, indexing=indexing, mode=mode)
+
+    def verify(self, log=True):
+        succeeded = True
+        for var in self:
+            if log:
+                logger.info(f"Checking variable {var.id()}")
+            for value in var:
+                found = True
+                gid, iid = value.group_id(), value.item_id()
+                if gid not in self._ds.seq:
+                    found = False
+                elif iid not in self._ds.seq[gid]:
+                    found = False
+                if not found and log:
+                    logger.warning(f"Value for variable discovered {var.id()} for non-existent item {iid}/{gid}")
+
+                if not value.is_scalar():
+                    if not value.file().exists():
+                        if log:
+                            logger.error(f"File {value.file()} for item {iid}/{gid} variable {var.id()} does not exist")
+                        succeeded = False
+
+            for item in self._ds:
+                gid, iid = item.group_id(), item.id()
+                if ((gid, iid) not in var) and log:
+                    logger.warning(f"Item {iid}/{gid} missing value for variale {var.id()}")
+
+        return succeeded
+
+    def sanitize(self, log=True):
+        for var in self:
+            if log:
+                logger.info(f"Checking variable {var.id()}")
+
+            used = False
+            for viz in self._ds.viz:
+                if var.id() in viz.variable_ids(): used = True
+            for met in self._ds.met:
+                if var.id() in met.variable_ids(): used = True
+
+            if not used:
+                if log:
+                    logger.warning(f"Removing unused variable {var.id()}")
+                del self[var.id()]
+                continue
+
+            remove_keys = []
+            for value in var:
+                found = True
+                gid, iid = value.group_id(), value.item_id()
+                if gid not in self._ds.seq:
+                    found = False
+                elif iid not in self._ds.seq[gid]:
+                    found = False
+
+                if not found:
+                    if log:
+                        logger.warning(f"Removing value for variable {var.id()} for non-existent item {iid}/{gid}")
+                    remove_keys.append((gid, iid))
+
+                if not value.is_scalar():
+                    if not value.file().exists():
+                        if log:
+                            logger.warning(f"File {value.file()} for item {iid}/{gid} variable {var.id()} does not exist")
+
+            for key in remove_keys:
+                del var[key]
+
+            for item in self._ds:
+                gid, iid = item.group_id(), item.id()
+                if ((gid, iid) not in var) and log:
+                    logger.warning(f"Item {iid}/{gid} missing value for variale {var.id()}")
+
+        return True

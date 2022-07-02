@@ -42,7 +42,11 @@ class _SingleVariableVisualization(_Visualization):
         return self._dict()
 
     def variable_ids(self):
-        return [self._get("var")]
+        ids = [self._get("var")]
+        props = self._get("props")
+        if props is not None:
+            ids.append(props)
+        return ids
 
     def __getattr__(self, item):
         if item =="sv":

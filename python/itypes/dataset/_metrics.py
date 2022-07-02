@@ -7,6 +7,7 @@ from ..utils import align_tabs
 from ..grid2d import Grid2D
 from copy import deepcopy
 from ._node import _DatasetNode
+from ..log import log as logger
 
 
 class _Iterator:
@@ -57,10 +58,22 @@ class _Metric(_DatasetNode):
         precision = self._get("precision", 2)
         return FormattedFloat(value, precision)
 
-    def compute(self, save_result=True, save_values=False, save_maps=False, device=None):
-        return self.update(save_result, save_values, save_maps, device, True)
+    def variable_ids(self):
+        ids = []
+        data_id = self._get("data")
+        if data_id is not None: ids.append(data_id)
+        ref_id = self._get("ref")
+        if ref_id is not None: ids.append(ref_id)
+        value_var_id = self._get("value_var")
+        if value_var_id is not None: ids.append(value_var_id)
+        map_var_id = self._get("map_var")
+        if map_var_id is not None: ids.append(map_var_id)        
+        return ids 
 
-    def update(self, save_result=True, save_values=False, save_maps=False, device=None, recompute=False):
+    def compute(self, save_result=True, save_values=False, save_maps=False, device=None, log=False):
+        return self.update(save_result, save_values, save_maps, device, recompute=True, log=log)
+
+    def update(self, save_result=True, save_values=False, save_maps=False, device=None, recompute=False, log=False):
         import torch
         if device is None:
             device = torch.device("cpu")
@@ -85,11 +98,13 @@ class _Metric(_DatasetNode):
 
             map_ok = True
             if save_maps:
-                value_var = self.value_var()
-                if not(value_var is not None and (item.group_id(), item.id()) in value_var):
+                map_var = self.map_var()
+                if map_var is not None and (item.group_id(), item.id()) not in map_var:
                     map_ok = False
 
             if value_ok and map_ok and not recompute:
+                if log:
+                    logger.info(f"{self.id()} for {item.group_id()}/{item.id()}: {value}")
                 errors.append(value)
                 continue
 
@@ -113,12 +128,18 @@ class _Metric(_DatasetNode):
                     raise Exception(f"_Metric is missing \"map_var\" parameter")
                 map_var[item.group_id(), item.id()].set_data(result.map(dims="hwc"))
 
+            if log:
+                logger.info(f"{self.id()} for {item.group_id()}/{item.id()}: {result.error()}")
+
             errors.append(result.error())
 
         mean_error = FormattedFloat(
             sum(errors) / len(errors),
             metric_precision(self.type())
         )
+
+        if log:
+            logger.confirm(f"{self.id()} total: {mean_error}")
 
         if save_result:
             self.set_value(mean_error)
@@ -150,9 +171,9 @@ class _Metrics(_DatasetNode):
         if path in self._reg:
             self._reg.remove(self._path + id)
         if 'value_var' not in kwargs:
-            kwargs['value_var'] = id + ".error"
+            kwargs['value_var'] = id + ".errors"
         if 'map_var' not in kwargs:
-            kwargs['map_var'] = id + ".map"
+            kwargs['map_var'] = id + ".maps"
         d = {
             "type": type,
             "data": data,
@@ -220,3 +241,34 @@ class _Metrics(_DatasetNode):
     def copy_from(self, other):
         for other_met in other:
             self.create(**other_met.params(), id=other_met.id())
+
+
+    def verify(self, log=True):
+        succeeded = True
+        for met in self:
+            if log:
+                logger.info(f"Checking metric {met.id()}")
+            for var_id in met.variable_ids():
+                if var_id not in self._ds.var:
+                    succeeded = False
+                    if log:
+                        logger.error(f"Metric {met.id()} references non-existent variable {var_id}")
+
+        return succeeded
+
+    def sanitize(self, log=True):
+        remove_list = []
+        for met in self:
+            if log:
+                logger.info(f"Checking metric {met.id()}")
+            for var_id in met.variable_ids():
+                if var_id not in self._ds.var:
+                    remove_list.append(met.id())
+                    if log:
+                        logger.warning(
+                            f"Removing metric {met.id()} as it references non-existent variable {var_id}")
+
+        for id in remove_list:
+            del self[id]
+
+        return True

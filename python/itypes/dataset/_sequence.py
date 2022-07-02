@@ -151,12 +151,18 @@ class _Sequence(_DatasetNode):
         if self._rebuild_index: self.rebuild_linear_index()
         else:                   self._needs_index_rebuild = True
 
-    def remove(self, id, delete_files=False):
-        if delete_files:
-            raise NotImplementedError
-
+    def remove(self, id):
         path = self._path + "groups" + id
         del self._reg[path]
+
+        self.flag_linear_index_as_dirty()
+
+    def remove_item(self, index):
+        gid, iid = index
+        group = self[gid]
+        del group[iid]
+        if len(group.item_ids()) == 0:
+            del self[gid]
 
         self.flag_linear_index_as_dirty()
 
@@ -176,6 +182,10 @@ class _Sequence(_DatasetNode):
     def __str__(self):
         return self.str()
 
+    def __contains__(self, id):
+        path = self._path + "groups" + id
+        return path in self._reg
+
     def str(self, prefix="", indent="  "):
         return align_tabs(self._str(prefix, indent))
 
@@ -194,3 +204,9 @@ class _Sequence(_DatasetNode):
                 new_item = new_group.item(other_item.id(), other_item.label())
 
         self._ds._do_auto_write()
+
+    def verify(self, log=True):
+        return True
+
+    def sanitize(self, log=True):
+        return True

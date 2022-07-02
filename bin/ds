@@ -3,18 +3,18 @@
 import os
 import sys
 import argparse
-from itypes import Dataset, Path
+from itypes import Dataset, Path, log
 
 def discover_datasets(path):
     path = Path(path)
     return path.search_files("data.json")
 
-def error(msg):
-    sys.stderr.write('ERROR: ' + msg + "\n")
-    sys.stderr.flush()
+def die(msg):
+    log.error(msg)
     sys.exit(-1)
 
 parser = argparse.ArgumentParser(description='Dataset tool')
+parser.add_argument("dataset", help="Path to dataset")
 subparsers = parser.add_subparsers(dest='command')
 commands = {}
 
@@ -23,36 +23,285 @@ class _Command:
     def __init__(self, name):
         self._name = name
         self._parser = subparsers.add_parser(name)
-        self.configure_args()
+        self._configure_parser()
+
+        self._dataset = None
+        self._args = None 
+
         global commands
         commands[name] = self
 
+    def set_args(self, args):
+        self._args = args
 
+    def dataset(self):
+        if self._dataset is None:
+            self._dataset = Dataset(self._args.dataset).read()
+        return self._dataset
+
+    def run(self):
+        self._run(self._args)
+
+    def _run(self, args):
+        raise NotImplementedError
+
+#
+# --- ds print
+#
 class _PrintCommand(_Command):
     def __init__(self):
         super().__init__("print")
 
-    def configure_args(self):
-        self._parser.add_argument("dataset")
+    def _configure_parser(self):
+        self._parser.add_argument("--show-res", action="store_true", help="Show resolutions")
 
-    def run(self, args):
-        ds = Dataset(args.dataset).read()
-        print(ds, end='')
+    def _run(self, args):
+        ds = self.dataset()
+        print(ds.str(show_res=args.show_res), end='')
 
 _PrintCommand()
+
+
+#
+# --- ds verify
+#
+class _VerifyCommand(_Command):
+    def __init__(self):
+        super().__init__("verify")
+
+    def _configure_parser(self):
+        pass
+
+    def _run(self, args):
+        ds = self.dataset()
+        result = ds.verify()
+        if result:
+            log.confirm("Dataset intact")
+        else:
+            die("Dataset is broken")
+
+_VerifyCommand()
+
+
+#
+# --- ds sanitize
+#
+class _SanitizeCommand(_Command):
+    def __init__(self):
+        super().__init__("sanitize")
+
+    def _configure_parser(self):
+        pass
+
+    def _run(self, args):
+        ds = self.dataset()
+        result = ds.sanitize()
+        if result:
+            log.confirm("Dataset sanitized")
+            ds.write() 
+        else:
+            die("Dataset is broken")
+
+_SanitizeCommand()
+
+
+#
+# --- ds var
+#
+class _VarCommand(_Command):
+    def __init__(self):
+        super().__init__("var")
+
+    def _configure_parser(self):
+        subparsers = self._parser.add_subparsers(dest='subcommand')
+
+        self._var_subparser = subparsers.add_parser("del")
+        self._var_subparser.add_argument("id", help="Variable id")
+        self._var_subparser.add_argument("--sanitize", action="store_true", help="Delete invalid references")
+        self._var_subparser.add_argument("--delete-files", action="store_true", help="Delete files")
+
+    def _run(self, args):
+        ds = self.dataset()
+
+        if args.subcommand == "del":
+            id = args.id
+            if id not in ds.var:
+                die(f"{id} is not a valid variable")
+            if args.delete_files:
+                ds.var.remove(id, delete_files=True)
+            else:
+                del ds.var[id]
+            if args.sanitize:
+                ds.sanitize()
+            ds.write()
+
+_VarCommand()
+
+
+#
+# --- ds viz
+#
+class _VizCommand(_Command):
+    def __init__(self):
+        super().__init__("viz")
+
+    def _configure_parser(self):
+        subparsers = self._parser.add_subparsers(dest='subcommand')
+
+        self._viz_subparser = subparsers.add_parser("del")
+        self._viz_subparser.add_argument("id", help="Visualization id")
+        self._viz_subparser.add_argument("--sanitize", action="store_true", help="Delete invalid references")
+
+    def _run(self, args):
+        ds = self.dataset()
+
+        if args.subcommand == "del":
+            id = args.id
+            if id not in ds.viz:
+                die(f"{id} is not a valid visualization")
+            del ds.viz[id]
+            if args.sanitize:
+                ds.sanitize()
+            ds.write()
+
+_VizCommand()
+
+
+#
+# --- ds met
+#
+class _MetCommand(_Command):
+    def __init__(self):
+        super().__init__("met")
+
+    def _configure_parser(self):
+        subparsers = self._parser.add_subparsers(dest='subcommand')
+
+        self._del_subparser = subparsers.add_parser("del")
+        self._del_subparser.add_argument("id", help="Metric id")
+        self._del_subparser.add_argument("--sanitize", action="store_true", help="Delete invalid references")
+
+        self._compute_subparser = subparsers.add_parser("compute")
+        self._compute_subparser.add_argument("id", help="Metric id")
+        self._compute_subparser.add_argument("--recompute", action="store_true", help="Recompute existing results")
+        self._compute_subparser.add_argument("--save-maps", action="store_true", help="Compute maps")
+        self._compute_subparser.add_argument("--no-save", action="store_true", help="Do not save results")
+
+        self._compute_subparser = subparsers.add_parser("create")
+        self._compute_subparser.add_argument("type", help="Metric type")
+        self._compute_subparser.add_argument("id", help="Metric id")
+        self._compute_subparser.add_argument("data", help="Data variable id")
+        self._compute_subparser.add_argument("ref", help="Reference variable id")
+        self._compute_subparser.add_argument("--value-var", default=None, help="Variable id to store values")
+        self._compute_subparser.add_argument("--map-var", default=None, help="Variable id to store maps")
+        self._compute_subparser.add_argument("--crop-boundary", default=None, help="Set a crop boundary")
+
+    def _run(self, args):
+        ds = self.dataset()
+
+        if args.subcommand == "del":
+            id = args.id
+            if id not in ds.met:
+                die("invalid metric id \"{id}\"")
+            del ds.met[id]
+            if args.sanitize:
+                ds.sanitize()
+            ds.write()
+
+        elif args.subcommand == "compute":
+            id = args.id
+            if id not in ds.met:
+                die("invalid metric id \"{id}\"")
+            met = ds.met[id]
+
+            met.update(
+                save_result=not args.no_save,
+                save_values=not args.no_save,
+                save_maps=args.save_maps,
+                recompute=args.recompute,
+                log=True
+            )
+
+            if not args.no_save:
+                ds.write()
+
+        elif args.subcommand == "create":
+            id = args.id
+            
+            kwargs = {}
+            if args.value_var is not None: 
+                kwargs['value_var'] = args.value_var
+            if args.map_var is not None: 
+                kwargs['map_var'] = args.map_var
+            if args.crop_boundary is not None:
+                kwargs['crop_boundary'] = args.crop_boundary
+            print("kwargs", kwargs)
+            ds.met.create(
+                type=args.type, 
+                id=args.id, 
+                data=args.data, 
+                ref=args.ref,
+                **kwargs
+            )
+            ds.write()
+
+_MetCommand()
+
+
+#
+# --- ds item
+#
+class _ItemCommand(_Command):
+    def __init__(self):
+        super().__init__("item")
+
+    def _configure_parser(self):
+        subparsers = self._parser.add_subparsers(dest='subcommand')
+
+        self._item_subparser = subparsers.add_parser("del")
+        self._item_subparser.add_argument("index", type=int, default=None, nargs='?', help="Item linear index")
+        self._item_subparser.add_argument("--groupid", help="Group id (specify instead of index)")
+        self._item_subparser.add_argument("--itemid", help="Item id (specify instead of index)")
+        self._item_subparser.add_argument("--delete-files", action="store_true", help="Delete files")
+
+    def _run(self, args):
+        ds = self.dataset()
+
+        if args.subcommand == "del":
+            if args.index is not None:
+                index = args.index
+                if index >= len(ds):
+                    die(f"linear index {index} out of bounds")
+                item = ds[index]
+                item.remove(delete_files=args.delete_files)
+                ds.write()
+            else:
+                gid = args.groupid
+                iid = args.itemid
+                if gid not in ds.seq:
+                    die("invalid group id {gid}")
+                if iid not in ds.seq[gid]:
+                    die("invalid item id {iid} in group {gid}")
+                item = ds.seq[gid][iid]
+                item.remove(delete_files=args.delete_files)
+                ds.write()
+
+_ItemCommand()
+
+
 
 
 class _ConcatCommand(_Command):
     def __init__(self):
         super().__init__("concat")
 
-    def configure_args(self):
-        self._parser.add_argument("--discover", action="store_true", help="Search subdirectories for datasets")
-        self._parser.add_argument("dataset", nargs="*")
+    def _configure_parser(self):
+#        parser.add_argument("--discover", action="store_true", help="Search subdirectories for datasets")
+
         self._parser.add_argument("--out", required=True, type=str, help="Output dataset")
         self._parser.add_argument("--structured", action="store_true", help="Structured output")
 
-    def run(self, args):
+    def _run(self, args):
         datasets = args.dataset
         if args.discover:
             datasets += discover_datasets(os.getcwd())
@@ -82,4 +331,7 @@ _ConcatCommand()
 
 
 args = parser.parse_args()
-commands[args.command].run(args)
+commands[args.command].set_args(args)
+commands[args.command].run()
+
+sys.exit(0)

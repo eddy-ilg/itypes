@@ -67,6 +67,7 @@ from .paths import exapmles_root
 
 from .log import TraceLogger
 from .log import set_trace_level
+from .log import log
 
 from .grid2d import Grid2D
 

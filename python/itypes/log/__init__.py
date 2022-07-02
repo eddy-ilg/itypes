@@ -3,3 +3,4 @@
 from .trace_logger import TraceLogger
 from .trace_logger import set_trace_level
 
+from .info_logger import log

@@ -99,6 +99,14 @@ class _Value(_DatasetNode):
             return path.file(file.name())
         return file
 
+    def delete_file(self):
+        if self.is_scalar():
+            return
+        file = self.file()
+        if file is None:
+            return
+        file.remove()
+
     def data(self, **kwargs):
         variable = self.variable()
         if variable.is_scalar():

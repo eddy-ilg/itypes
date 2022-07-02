@@ -88,6 +88,10 @@ class _Group(_DatasetNode):
             raise KeyError(path)
         return _Item(self._ds, path)
 
+    def __contains__(self, item):
+        path = self._path + "items" + item
+        return  path in self._reg
+
     def __iter__(self):
         return _Iterator(self)
 

@@ -6,6 +6,8 @@ from ..type import is_list
 from ..utils import align_tabs
 from ..grid2d import Grid2D
 from ._node import _DatasetNode
+from ..log import log as logger
+
 
 class _Iterator:
     def __init__(self, viz):
@@ -222,3 +224,32 @@ class _Visualizations(_DatasetNode):
     def copy_from(self, other):
         for other_viz in other:
             self.create(**other_viz.params(), id=other_viz.id())
+
+    def verify(self, log=True):
+        succeeded = True
+        for viz in self:
+            if log:
+                logger.info(f"Checking visualization {viz.id()}")
+            for var_id in viz.variable_ids():
+                if var_id not in self._ds.var:
+                    succeeded = False
+                    if log:
+                        logger.error(f"Visualization {viz.id()} references non-existent variable {var_id}")
+
+        return succeeded
+
+    def sanitize(self, log=True):
+        remove_list = []
+        for viz in self:
+            if log:
+                logger.info(f"Checking visualization {viz.id()}")
+            for var_id in viz.variable_ids():
+                if var_id not in self._ds.var:
+                    remove_list.append(viz.id())
+                    if log:
+                        logger.warning(f"Removing visualization {viz.id()} as it references non-existent variable {var_id}")
+
+        for id in remove_list:
+            del self[id]
+
+        return True

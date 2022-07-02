@@ -92,6 +92,9 @@ class Dataset:
             file = self._file
         file = self._make_file(file)
 
+        if not file.exists():
+            raise Exception(f"Dataset not found: \"{file}\"")
+
         if file.extension() == "gridseq":
             from ._legacy import read_gridseq
             read_gridseq(self, file)
@@ -123,16 +126,16 @@ class Dataset:
     def __str__(self):
         return self.str()
 
-    def str(self, prefix="", indent="  "):
-        return align_tabs(self._str(prefix, indent))
+    def str(self, prefix="", indent="  ", show_res=False):
+        return align_tabs(self._str(prefix, indent, show_res))
 
-    def _str(self, prefix="", indent="  "):
+    def _str(self, prefix="", indent="  ", show_res=False):
         str = ""
         str += prefix + "variables:\n"
         if len(self.var.ids()) == 0:
             str += prefix + "  (none)\n"
         else:
-            str += self.var._str(prefix=prefix + indent, indent=indent)
+            str += self.var._str(prefix=prefix + indent, indent=indent, show_res=show_res)
         str += prefix + "visualizations:\n"
         if len(self.viz.ids()) == 0:
             str += prefix + "  (none)\n"
@@ -202,6 +205,27 @@ class Dataset:
         self.var.copy_from(other.var, mode=mode)
         self.met.copy_from(other.met)
 
-    def template_from(self, other):
+    def template_from(self, other, include_metrics=True):
         self.viz.copy_from(other.viz)
+        if include_metrics:
+            self.met.copy_from(other.met)
         self.var.copy_from(other.var, include_data=False)
+
+    def verify(self, log=True):
+        succeeded = True
+        succeeded = self.viz.verify(log=log) and succeeded
+        succeeded = self.seq.verify(log=log) and succeeded
+        succeeded = self.var.verify(log=log) and succeeded
+        succeeded = self.met.verify(log=log) and succeeded
+        return succeeded
+
+    def sanitize(self, log=True):
+        if not self.viz.sanitize(log=log):
+            return False
+        if not self.met.sanitize(log=log):
+            return False
+        if not self.var.sanitize(log=log):
+            return False
+        if not self.seq.sanitize(log=log):
+            return False
+        return True

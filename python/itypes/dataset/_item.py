@@ -56,6 +56,13 @@ class _Item(_DatasetNode):
         if exc_type is None:
             return self
 
+    def remove(self, delete_files=False):
+        gid, iid = self.group_id(), self.id()
+        self._ds.seq.remove_item((gid, iid))
+        for var in self._ds.var:
+            if (gid, iid) in var:
+                var.remove_item((gid, iid), delete_files=delete_files)
+
     def variable_ids(self):
         ids = []
         for variable in self._ds.var:
