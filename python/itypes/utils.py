@@ -93,3 +93,10 @@ def lookahead(iterable):
         yield last, True
         last = val
     yield last, False
+
+def pairs(iterable):
+    it = iter(iterable)
+    last = next(it)
+    for current in it:
+        yield last, current
+        last = current
