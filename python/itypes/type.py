@@ -11,6 +11,10 @@ from numpy import uint8
 from numpy import uint16
 from numpy import float32
 from numpy import float64
+
+from warnings import filterwarnings
+filterwarnings(action='ignore', category=FutureWarning, message='In the future `np.bool` will be defined as the corresponding NumPy scalar.')
+
 try:
     from numpy import bool as bool
 except:
