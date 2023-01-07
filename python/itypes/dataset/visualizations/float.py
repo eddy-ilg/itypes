@@ -16,12 +16,13 @@ class _FloatVisualization(_SingleVariableVisualization):
     DataClass = FloatVisualizationData
 
     def create_pixviz(self):
-        from iviz.renderers import FloatPixmapVisualization
-        return FloatPixmapVisualization()
+        from iviz.factory import factory
+        return factory.new('renderers.pixviz.FloatPixmapVisualization')
 
     def create_display(self, manager):
-        from iviz.widgets.displays import FloatDisplay
-        return FloatDisplay(
+        from iviz.factory import factory
+        return factory.new(
+            'widgets.displays.FloatDisplay',
             manager,
             self.create_pixviz(),
             id=self._id,

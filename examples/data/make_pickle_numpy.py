@@ -52,3 +52,5 @@ data = {'t1': t1, 't2': t2, "t3": t3}
 write_numpy('test.npy', data)
 write_numpy_compressed('test.npz', data)
 write_pickle('test.p', data)
+
+write_numpy_compressed('test-direct.npz', t1) 
