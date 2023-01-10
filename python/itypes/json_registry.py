@@ -82,7 +82,7 @@ class RegistryPath:
 
     def __add__(self, other):
         if isinstance(other, RegistryPath):
-            return self.append(other._path)
+            return self.append(*other._path)
         else:
             return self.append(other)
 
