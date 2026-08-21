@@ -7,10 +7,10 @@
 ### See https://github.com/eddy-ilg/itypes  ###
 ### --------------------------------------- ###
 
-from itypes import Registry
+from itypes import JsonRegistry
 
 
-reg = Registry('out_registry/data.json')
+reg = JsonRegistry('out_registry/data.json')
 
 reg.from_dict({"foo":1, "bar":2, "fiddle":{"bar":2, "foo": [2, 3]}})
 

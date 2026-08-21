@@ -9,7 +9,6 @@
 
 import sys
 import inspect
-from itypes import addr
 
 TRACE = -1
 DEBUG = 0
@@ -49,6 +48,7 @@ class TraceLogger:
         self._class_name = self._container.__name__
 
     def _message(self, level, message):
+        from ..type import addr
         global log_level
 
         if level < log_level:

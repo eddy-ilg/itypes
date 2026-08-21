@@ -7,7 +7,6 @@
 ### See https://github.com/eddy-ilg/itypes  ###
 ### --------------------------------------- ###
 
-from itypes import Path
 from ..filesystem import File
 from ._node import _DatasetNode
 
@@ -75,6 +74,7 @@ class _Value(_DatasetNode):
                 extension = variable.extension()
 
             if self._ds._structured:
+                from ..paths import Path 
                 file = Path(self.group_id()).cd(self.item_id()).file(f"{self.variable_id()}.{extension}")
             else:
                 linear_format = self._ds._linear_format

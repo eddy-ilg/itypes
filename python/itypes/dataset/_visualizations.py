@@ -14,7 +14,6 @@ from ..utils import align_tabs
 from ..grid2d import Grid2D
 from ._node import _DatasetNode
 from ..log import log as logger
-from itypes import Struct 
 
 
 class _Iterator:
@@ -263,6 +262,7 @@ class _Visualizations(_DatasetNode):
         return True
     
     def dimensions(self):
+        from ..struct import Struct
         s = Struct() 
         if len(self.ids()) == 0:
             s.min_row = 0
