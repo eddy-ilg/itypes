@@ -7,8 +7,6 @@
 ### See https://github.com/eddy-ilg/itypes  ###
 ### --------------------------------------- ###
 
-from PyQt5.QtGui import QFont
-
 from .registry import register_annotation
 from ._annotation import _Annotation
 from ...type import is_number
