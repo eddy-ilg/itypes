@@ -74,7 +74,7 @@ class _Value(_DatasetNode):
                 extension = variable.extension()
 
             if self._ds._structured:
-                from ..paths import Path 
+                from .paths import Path 
                 file = Path(self.group_id()).cd(self.item_id()).file(f"{self.variable_id()}.{extension}")
             else:
                 linear_format = self._ds._linear_format
